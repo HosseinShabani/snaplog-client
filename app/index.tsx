@@ -5,7 +5,7 @@ import NavBar from '@/components/navigation/NavBar';
 import { HomeConst } from '@/constants/HomeConst';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronRight, CircleIcon, CirclePlayIcon, PlaneIcon, PlayIcon } from 'lucide-react-native';
+import { ChevronRight, PlayIcon } from 'lucide-react-native';
 import { isNil } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Text as ButtonText } from '@/components/ui/text';
@@ -67,7 +67,7 @@ const index = () => {
                 className="w-14 h-14 bg-white absolute z-20 rounded-full self-center flex justify-center items-center"
                 onPress={() => player.play()}
               >
-                <PlayIcon className="text-gray-60" size={30} />
+                <PlayIcon className="text-gray-60 typo-[30]" />
               </Pressable>
             )}
             <VideoView
@@ -80,7 +80,7 @@ const index = () => {
           </View>
           <Button variant={'default'} className="flex-row gap-2 w-full -top-20">
             <ButtonText className="typo-[16-500] text-white">Get Started</ButtonText>
-            <ChevronRight size={30} strokeWidth={1.5} className="text-white" />
+            <ChevronRight strokeWidth={1.5} className="text-white typo-[30]" />
           </Button>
         </View>
         <Footer />

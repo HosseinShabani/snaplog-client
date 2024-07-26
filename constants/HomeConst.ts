@@ -8,7 +8,7 @@ const HomeConst:HomeConstT  = {
   benefitsData : ['Perfect for researchers', 'Integrates with Excel', 'Start in minutes.'],
   footerItems:[
     {
-      label:'Contact us', href:'/contactUs',
+      label:'Contact us', href:'/contact-us',
     },
     {
       label:'Terms', href:'/terms',

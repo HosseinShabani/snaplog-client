@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import '@/lib/global.css';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import NavBar from '@/components/navigation/NavBar';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,9 +35,17 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerShown: true,
+          header: props => <NavBar.Back {...props} />,
+        }}
+      >
         <Stack.Screen name="index" />
         <Stack.Screen name="+not-found" />
+        <Stack.Screen name="terms" options={{ title: 'Terms' }} />
+        <Stack.Screen name="contact-us" options={{ title: 'Contanct us' }} />
+        <Stack.Screen name="privacy" options={{ title: 'Privacy' }} />
       </Stack>
     </ThemeProvider>
   );
