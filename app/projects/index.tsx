@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { ProjectConst, ProjectT } from '@/constants/ProjectConst';
 import { Button } from '@/components/ui/button';
 import { Text as TextButton } from '@/components/ui/text';
-import { DotIcon, PlusIcon } from '@/lib/icons';
+import { PlusIcon } from '@/lib/icons';
 import { Link } from 'expo-router';
 
 const ProjectCard: FC<ProjectT> = ({ createdAt, id, name, status }) => {
@@ -15,20 +15,22 @@ const ProjectCard: FC<ProjectT> = ({ createdAt, id, name, status }) => {
     else return <Text className="typo-[13-700] text-green-500">Uploading 2.4 MB/250 MB</Text>;
   };
   return (
-    <Pressable className="flex flex-col py-4">
-      <View className=" flex-row justify-between items-center">
-        <Text className="typo-[16-600] text-gray-80">{name}</Text>
-        <View className="flex flex-row gap-1">
-          <View className="w-1 h-1 rounded-full bg-black" />
-          <View className="w-1 h-1 rounded-full bg-black" />
-          <View className="w-1 h-1 rounded-full bg-black" />
+    <Link asChild href={`/projects/${id}`}>
+      <Pressable className="flex flex-col py-4">
+        <View className=" flex-row justify-between items-center">
+          <Text className="typo-[16-600] text-gray-80">{name}</Text>
+          <View className="flex flex-row gap-1">
+            <View className="w-1 h-1 rounded-full bg-black" />
+            <View className="w-1 h-1 rounded-full bg-black" />
+            <View className="w-1 h-1 rounded-full bg-black" />
+          </View>
         </View>
-      </View>
-      <View className=" flex-row justify-between items-center mt-1">
-        <Text className="typo-[13-400] text-gray-30">{createdAt}</Text>
-        {renderStatus()}
-      </View>
-    </Pressable>
+        <View className=" flex-row justify-between items-center mt-1">
+          <Text className="typo-[13-400] text-gray-30">{createdAt}</Text>
+          {renderStatus()}
+        </View>
+      </Pressable>
+    </Link>
   );
 };
 

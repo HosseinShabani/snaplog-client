@@ -10,6 +10,8 @@ export default function ProjectsLayout() {
         header: props => <NavBar.Registered {...props} />,
       }}
       initialRouteName="projects"
-    ></Stack>
+    >
+      <Stack.Screen name="projectDetail" options={{ headerShown: false }} />
+    </Stack>
   );
 }
