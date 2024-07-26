@@ -25,7 +25,7 @@ const Back: React.FC<Partial<NativeStackHeaderProps & PropsT>> = ({
         <View className="flex flex-1 items-start -ml-2.5" />
       )}
       <Text className="typo-[16-400] text-black">{options?.title}</Text>
-      <View className="flex flex-1 items-end -mr-2.5">{renderRightContent?.()}</View>
+      <View className="flex flex-1 items-end">{renderRightContent?.()}</View>
     </View>
   );
 };

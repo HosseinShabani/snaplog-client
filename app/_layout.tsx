@@ -2,6 +2,7 @@ import { useFonts } from 'expo-font';
 import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { PortalHost } from '@rn-primitives/portal';
 import 'react-native-reanimated';
 import '@/lib/global.css';
 
@@ -28,5 +29,10 @@ export default function RootLayout() {
     return null;
   }
 
-  return <Slot />;
+  return (
+    <>
+      <Slot />
+      <PortalHost />
+    </>
+  );
 }

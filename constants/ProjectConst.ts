@@ -5,8 +5,14 @@ export type ProjectT = {
   status:number
 }
 
+export type TemplateT = {
+  label:string;
+  value:string;
+}
+
 type ProjectConstT = {
-  data: ProjectT[]
+  data: ProjectT[];
+  templates:TemplateT[];
 }
 
 const ProjectConst:ProjectConstT  = {
@@ -45,6 +51,20 @@ const ProjectConst:ProjectConstT  = {
       status: 4
     }
   ],
+  templates: [
+    {
+      label:"Ali’s template",
+      value:"1"
+    },
+    {
+      label:"Amir’s template",
+      value:"2"
+    },
+    {
+      label:"Amin’s template",
+      value:"3"
+    }
+  ]
 }
 
 export {ProjectConst}
