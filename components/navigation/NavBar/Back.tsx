@@ -2,7 +2,7 @@ import React, { type JSX } from 'react';
 
 import { type NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Pressable, Text, View } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/icons';
 
 type PropsT = {
   renderRightContent: () => JSX.Element | null;

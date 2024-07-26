@@ -2,7 +2,7 @@ import React, { type JSX } from 'react';
 
 import { type NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { Pressable, Text, View } from 'react-native';
-import { MenuIcon } from 'lucide-react-native';
+import { MenuIcon } from '@/lib/icons';
 import { Link } from 'expo-router';
 
 type PropsT = {

@@ -8,6 +8,10 @@ import { Link, useNavigation } from 'expo-router';
 const Signup = () => {
   const [secureTextEntry, setSecureTextEntry] = useState(false);
   const { navigate } = useNavigation();
+  const handleSignup = () => {
+    navigate('projects');
+  };
+
   return (
     <View className="flex flex-col bg-white px-6 py-6 flex-1">
       <View className="flex flex-1">
@@ -23,17 +27,23 @@ const Signup = () => {
           By creating an account you agree with our Terms and Conditions.
         </Text>
         {/* Buttons */}
-        <Button className="mt-8" variant={'default'}>
+        <Button className="mt-8" variant={'default'} onPress={handleSignup}>
           <TextButton>Create Account</TextButton>
         </Button>
       </View>
       <View className="flex flex-col justify-center items-center">
         <Text className="typo-[16-700] text-gray-80">Have an account? Login</Text>
-        <Link asChild href={'/auth/login'}>
-          <Button size={'sm'} variant={'ghost'}>
-            <Text className="typo-[16-700] text-secondary">Login</Text>
-          </Button>
-        </Link>
+        <Button
+          size={'sm'}
+          variant={'ghost'}
+          onPress={() =>
+            navigate('auth', {
+              screen: 'login',
+            })
+          }
+        >
+          <Text className="typo-[16-700] text-secondary">Login</Text>
+        </Button>
       </View>
     </View>
   );

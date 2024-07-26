@@ -1,7 +1,7 @@
 import { Back } from './Back';
-import { Default } from './Default';
 import { Home } from './Home';
+import { Registered } from './Registered';
 
-const NavBar = { Default, Back, Home };
+const NavBar = { Registered, Back, Home };
 
 export default NavBar;

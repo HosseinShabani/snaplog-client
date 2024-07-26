@@ -9,11 +9,11 @@ export default function AuthLayout() {
         headerShown: true,
         header: props => <NavBar.Back {...props} />,
       }}
-      initialRouteName="/auth/login"
+      initialRouteName="login"
     >
-      <Stack.Screen name="/auth/login" options={{ title: 'Login' }} />
-      <Stack.Screen name="/auth/signup" options={{ title: 'Sign up' }} />
-      <Stack.Screen name="/auth/forger" options={{ title: 'Forget Password' }} />
+      <Stack.Screen name="login" options={{ title: 'Login' }} />
+      <Stack.Screen name="signup" options={{ title: 'Sign up' }} />
+      <Stack.Screen name="forget-password" options={{ title: 'Forget Password' }} />
     </Stack>
   );
 }
