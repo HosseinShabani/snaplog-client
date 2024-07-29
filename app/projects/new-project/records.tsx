@@ -186,7 +186,7 @@ const Records = () => {
 
   return (
     <>
-      <NavBar.Back
+      {/* <NavBar.Back
         options={{ title: 'Voice' }}
         renderRightContent={() => (
           <Button variant={'ghost'} className="p-0">
@@ -194,9 +194,9 @@ const Records = () => {
           </Button>
         )}
         navigation={navigation}
-      />
+      /> */}
       <View className="flex flex-1 bg-white p-6">
-        <Text className="typo-[20-700] mb-2">Record or upload your file</Text>
+        <Text className="typo-[20-500] mb-2">Record or upload your file</Text>
         {!isNil(recordFile) && (
           <View className="flex items-center justify-center flex-row gap-2">
             <AudioPlayer source={recordFile} />

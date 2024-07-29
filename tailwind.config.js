@@ -12,6 +12,7 @@ module.exports = {
       secondary: '#0096FF',
       primary: '#0061D3',
       gray: {
+        ...colors.gray,
         20: '#E5E5E5',
         30: '#B0B0B0',
         60: '#323232',
@@ -21,12 +22,10 @@ module.exports = {
     }),
     extend: {
       fontFamily: {
-        'primary-100': 'Roboto-Thin',
         'primary-300': 'Roboto-Light',
         'primary-400': 'Roboto-Regular',
         'primary-500': 'Roboto-Medium',
         'primary-700': 'Roboto-Bold',
-        'primary-900': 'Roboto-Black',
       },
     },
   },

@@ -6,12 +6,10 @@ export default function ProjectsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
-        header: props => <NavBar.Registered {...props} />,
+        header: props => <NavBar.Back {...props} />,
       }}
-      initialRouteName="projects"
     >
-      <Stack.Screen name="projectDetail" options={{ headerShown: false }} />
+      <Stack.Screen name="index" options={{ header: props => <NavBar.Registered {...props} /> }} />
     </Stack>
   );
 }

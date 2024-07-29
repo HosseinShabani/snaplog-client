@@ -2,32 +2,26 @@ import { Pressable, Text, View } from 'react-native';
 import React, { FC, useEffect, useRef, useState } from 'react';
 import { Audio } from 'expo-av';
 import { Sound } from 'expo-av/build/Audio';
-import { PauseIcon, PlayIcon, StopCircle } from 'lucide-react-native';
+import { PauseIcon, PlayIcon } from 'lucide-react-native';
 
 type PropsT = {
   source: Sound | null;
+  className?: string;
 };
 
 import Slider from '@react-native-community/slider';
-import { getMMSSFromMillis, isNil } from '@/lib/utils';
+import { cn, getMMSSFromMillis, isNil } from '@/lib/utils';
 
-const RATE_SCALE = 3.0;
-
-const AudioPlayer: FC<PropsT> = ({ source }): JSX.Element => {
+const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
   const sound = useRef<Audio.Sound>(source);
   const isSeeking = useRef(false);
   const shouldPlayAtEndOfSeek = useRef(false);
   const [state, setState] = useState({
-    haveRecordingPermissions: false,
     isLoading: false,
     soundPosition: null,
     soundDuration: null,
-    recordingDuration: null,
     shouldPlay: false,
     isPlaying: false,
-    isRecording: false,
-    shouldCorrectPitch: true,
-    rate: 1.0,
   });
 
   const onSeekSliderSlidingComplete = async (value: number) => {
@@ -49,27 +43,12 @@ const AudioPlayer: FC<PropsT> = ({ source }): JSX.Element => {
     return 0;
   };
 
-  const trySetRate = async (rate: number, shouldCorrectPitch: boolean) => {
-    if (sound.current != null) {
-      try {
-        await sound.current.setRateAsync(rate, shouldCorrectPitch);
-      } catch (error) {}
-    }
-  };
-
-  const onRateSliderSlidingComplete = async (value: number) => {
-    trySetRate(value * RATE_SCALE, state.shouldCorrectPitch);
-  };
-
-  const onPitchCorrectionPressed = () => {
-    trySetRate(state.rate, !state.shouldCorrectPitch);
-  };
-
   const onSeekSliderValueChange = (value: number) => {
     if (sound.current != null && !isSeeking.current) {
       isSeeking.current = true;
       shouldPlayAtEndOfSeek.current = state.shouldPlay;
       sound.current.pauseAsync();
+      setState(s => ({ ...s, isPlaying: false }));
     }
   };
 
@@ -80,6 +59,15 @@ const AudioPlayer: FC<PropsT> = ({ source }): JSX.Element => {
         }
       : undefined;
   }, [sound]);
+
+  useEffect(() => {
+    let audiointerval = null;
+    if (state.isPlaying) {
+      // audiointerval = setInterval(() => {
+      //   // console.log(sound.current)
+      // }, 1000);
+    }
+  }, [state]);
 
   const getPlaybackTimestamp = () => {
     if (!isNil(sound.current) && !isNil(state.soundPosition) && !isNil(state.soundDuration)) {
@@ -94,27 +82,31 @@ const AudioPlayer: FC<PropsT> = ({ source }): JSX.Element => {
     if (!isNil(sound.current)) {
       if (state.isPlaying) {
         sound.current.pauseAsync();
+        setState(s => ({ ...s, isPlaying: false }));
       } else {
         sound.current.playAsync();
+        setState(s => ({ ...s, isPlaying: true }));
       }
     }
   };
 
-  const onStopPressed = () => {
-    if (!isNil(sound.current)) {
-      sound.current.stopAsync();
-    }
-  };
-
   return (
-    <View className="flex flex-col w-full">
-      <View className="flex flex-col w-full gap-1">
+    <View
+      className={cn(
+        'flex flex-row rounded-lg gap-2 justify-center items-center border border-gray-20 px-2 py-2',
+        className,
+      )}
+    >
+      <View className="flex flex-1 gap-1">
         <Slider
           value={getSeekSliderPosition()}
           onValueChange={onSeekSliderValueChange}
           onSlidingComplete={onSeekSliderSlidingComplete}
           disabled={state.isLoading}
           className="w-full"
+          thumbTintColor="#0061D3"
+          maximumTrackTintColor="#e9e9e9"
+          minimumTrackTintColor="#0096FF"
         />
         <Text className="typo-[14-400] text-black">{getPlaybackTimestamp()}</Text>
       </View>
@@ -122,11 +114,6 @@ const AudioPlayer: FC<PropsT> = ({ source }): JSX.Element => {
         <Pressable onPress={onPlayPausePressed} disabled={state.isLoading}>
           {!state.isPlaying ? <PlayIcon /> : <PauseIcon />}
         </Pressable>
-        {state.isPlaying && (
-          <Pressable onPress={onStopPressed} disabled={state.isLoading}>
-            <StopCircle />
-          </Pressable>
-        )}
       </View>
     </View>
   );

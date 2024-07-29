@@ -1,16 +1,21 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { HomeConst } from '@/constants/HomeConst';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+
+import { HomeConst } from '@/constants/HomeConst';
 import { ChevronRight, PlayIcon } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
 import { Text as ButtonText } from '@/components/ui/text';
 import Footer from '@/components/Footer';
+import { useAuth } from '@/hooks';
 
 const index = () => {
   const ref = useRef(null);
+  const router = useRouter();
   const [isPlaying, setIsPlaying] = useState(false);
+  const session = useAuth(state => state.session);
   const player = useVideoPlayer(HomeConst.videoSource, player => {
     player.loop = false;
     player.play();
@@ -25,7 +30,11 @@ const index = () => {
     };
   }, [player]);
 
-  console.log(isPlaying, 'pla');
+  useEffect(() => {
+    if (session) {
+      router.replace('/projects');
+    }
+  }, [session]);
 
   return (
     <ScrollView className="flex flex-col bg-white">
@@ -35,7 +44,7 @@ const index = () => {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       >
-        <Text className="typo-[24-900] text-white">Voice Your Data, Simplify Your Research</Text>
+        <Text className="typo-[24-700] text-white">Voice Your Data, Simplify Your Research</Text>
         <Text className="typo-[16-400] text-white mt-2 mb-6">
           Voice input for easy, accurate data collection.
         </Text>
@@ -68,7 +77,11 @@ const index = () => {
             className="w-full h-64"
           />
         </View>
-        <Button variant={'default'} className="flex-row gap-2 w-full -top-20">
+        <Button
+          onPress={() => router.replace('/auth/login')}
+          variant={'default'}
+          className="flex-row gap-2 w-full -top-20"
+        >
           <ButtonText className="typo-[16-500] text-white">Get Started</ButtonText>
           <ChevronRight strokeWidth={1.5} className="text-white typo-[30]" />
         </Button>
