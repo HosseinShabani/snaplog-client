@@ -20,12 +20,12 @@ const ProjectCard: FC<ProjectT> = ({ created_at, id, status }) => {
     <Link asChild href={`/projects/${id}`}>
       <Pressable className="flex flex-col py-4">
         <View className=" flex-row justify-between items-center">
-          <Text className="typo-[16-500] text-gray-80">Project {id}</Text>
-        </View>
-        <View className=" flex-row justify-between items-center mt-1">
-          <Text className="typo-[13-400] text-gray-30">
+          <Text className="typo-[16-500] text-gray-80">
             {format(new Date(created_at), 'yyyy/MM/dd HH:mm a')}
           </Text>
+        </View>
+        <View className=" flex-row justify-between items-center mt-1">
+          <Text className="typo-[13-400] text-gray-30">Click to view details</Text>
           {renderStatus()}
         </View>
       </Pressable>

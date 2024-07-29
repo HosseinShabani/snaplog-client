@@ -49,7 +49,7 @@ const ProjectDetail = () => {
           <Text className="typo-[14-500]">Template</Text>: Generic
         </Text>
         <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
-          <Text className="typo-[14-500]">Transcribed Text</Text>: {data.modified_content}
+          <Text className="typo-[14-500]">Transcribed Text</Text>: {data.transcribed_content}
         </Text>
         <View className="w-full h-0.5 bg-gray-20 my-6" />
       </ScrollView>
