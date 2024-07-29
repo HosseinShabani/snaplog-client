@@ -3,6 +3,9 @@ import * as React from 'react';
 import { Pressable } from 'react-native';
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
+import Spinner from '../Spinner';
+
+type PropsT = { isLoading?: boolean };
 
 const buttonVariants = cva(
   'group flex items-center justify-center rounded-xl web:ring-offset-background web:transition-colors web:focus-visible:outline-none web:focus-visible:ring-2 web:focus-visible:ring-ring web:focus-visible:ring-offset-2',
@@ -58,10 +61,11 @@ const buttonTextVariants = cva(
 );
 
 type ButtonProps = React.ComponentPropsWithoutRef<typeof Pressable> &
-  VariantProps<typeof buttonVariants>;
+  VariantProps<typeof buttonVariants> &
+  PropsT;
 
 const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => {
+  ({ className, variant, size, isLoading, children, ...props }, ref) => {
     return (
       <TextClassContext.Provider
         value={cn(
@@ -77,7 +81,9 @@ const Button = React.forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>
           ref={ref}
           role="button"
           {...props}
-        />
+        >
+          {isLoading ? <Spinner /> : children}
+        </Pressable>
       </TextClassContext.Provider>
     );
   },

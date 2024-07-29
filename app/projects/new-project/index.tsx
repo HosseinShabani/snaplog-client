@@ -125,6 +125,7 @@ const NewProject = () => {
         variant={'default'}
         className="flex-row gap-2 w-full"
         disabled={!audioFile || !template}
+        isLoading={uploading}
         onPress={handleSubmit}
       >
         {uploading ? (

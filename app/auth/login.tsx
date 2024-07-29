@@ -46,7 +46,13 @@ const Login = ({}) => {
         >
           <Text className="typo-[16-500] text-secondary">Forget password?</Text>
         </Button>
-        <Button className="mt-8" variant={'default'} onPress={handleLogin} disabled={loading}>
+        <Button
+          isLoading={loading}
+          className="mt-8"
+          variant={'default'}
+          onPress={handleLogin}
+          disabled={loading}
+        >
           <TextButton>Login</TextButton>
         </Button>
       </View>

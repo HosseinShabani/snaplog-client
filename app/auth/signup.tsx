@@ -46,7 +46,13 @@ const Signup = () => {
           By creating an account you agree with our Terms and Conditions.
         </Text>
         {/* End Form */}
-        <Button className="mt-8" variant={'default'} onPress={handleSignup} disabled={loading}>
+        <Button
+          className="mt-8"
+          isLoading={loading}
+          variant={'default'}
+          onPress={handleSignup}
+          disabled={loading}
+        >
           <TextButton>Create Account</TextButton>
         </Button>
       </View>
