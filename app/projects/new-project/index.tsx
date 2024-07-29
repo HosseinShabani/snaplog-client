@@ -16,6 +16,10 @@ import { useAuth, useSettings } from '@/hooks';
 import { Upload } from '@/lib/icons';
 import AudioPlayer from '@/components/AudioPlayer';
 import { supabase } from '@/lib/supabase';
+import Tabbar from '@/components/Tabbar';
+import { TabsContent } from '@/components/ui/tabs';
+import Recorder from '@/components/Recorder';
+import { Sound } from 'expo-av/build/Audio';
 
 const NewProject = () => {
   const navigation = useNavigation();
@@ -27,6 +31,10 @@ const NewProject = () => {
   const [audioFile, setAudioFile] = useState<File | null | undefined>();
   const [soundFile, setSoundFile] = useState<Audio.Sound | null | undefined>();
   const [templateDesc, setTemplateDesc] = useState<string | undefined>();
+  const [tabbar, _] = useState([
+    { label: 'Record audio', value: 'record' },
+    { label: 'Upload audio', value: 'upload' },
+  ]);
 
   const handleUploadAudio = async () => {
     const file = await DocumentPicker.getDocumentAsync({
@@ -35,6 +43,13 @@ const NewProject = () => {
     if (!file?.assets?.[0]) return;
     setAudioFile(file.assets[0].file);
     const { sound } = await Audio.Sound.createAsync({ uri: file.assets[0].uri });
+    setSoundFile(sound);
+  };
+
+  const onRecordFinish = async (file: Sound | null) => {
+    console.log('fire', file);
+    setAudioFile(file);
+    const { sound } = await Audio.Sound.createAsync({ uri: file });
     setSoundFile(sound);
   };
 
@@ -108,18 +123,25 @@ const NewProject = () => {
           </>
         )}
         <Text className="typo-[20-500] mt-12 mb-3">Record or upload your file</Text>
-        {soundFile && <AudioPlayer className="mb-3" source={soundFile} />}
-        <Button
-          onPress={handleUploadAudio}
-          className="h-auto border-dashed border-zinc-400"
-          variant="outline"
-          disabled={!!audioFile}
-        >
-          <View className="flex flex-col items-center gap-1.5 py-2">
-            <Upload className="text-zinc-600" size={24} />
-            <Text className="typo-[16-500] text-zinc-800">Upload audio file</Text>
-          </View>
-        </Button>
+        <Tabbar data={tabbar}>
+          <TabsContent value="record">
+            <Recorder onRecordFinish={onRecordFinish} />
+          </TabsContent>
+          <TabsContent value="upload">
+            {soundFile && <AudioPlayer className="mb-3" source={soundFile} />}
+            <Button
+              onPress={handleUploadAudio}
+              className="h-auto border-dashed border-zinc-400"
+              variant="outline"
+              disabled={!!audioFile}
+            >
+              <View className="flex flex-col items-center gap-1.5 py-2">
+                <Upload className="text-zinc-600" size={24} />
+                <Text className="typo-[16-500] text-zinc-800">Upload audio file</Text>
+              </View>
+            </Button>
+          </TabsContent>
+        </Tabbar>
       </View>
       <Button
         variant={'default'}

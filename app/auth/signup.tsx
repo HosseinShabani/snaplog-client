@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Text as TextButton } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const Signup = () => {
   const { navigate } = useRouter();
@@ -13,6 +14,7 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const handleSignup = async () => {
     setLoading(true);
@@ -42,9 +44,12 @@ const Signup = () => {
         <Input placeholder="johndoe@mail.com" onChangeText={setEmail} />
         <Text className="typo-[16-500] text-gray-80 mt-8 mb-2">Password</Text>
         <Input placeholder="+8 characters" secureTextEntry onChangeText={setPassword} />
-        <Text className="typo-[14-400] leading-normal text-zinc-500 text-left mt-4">
-          By creating an account you agree with our Terms and Conditions.
-        </Text>
+        <View className="flex flex-row gap-2 mt-4 items-center justify-start">
+          <Checkbox checked={checked} onCheckedChange={setChecked} />
+          <Text className="typo-[14-400] leading-normal text-zinc-500 text-left">
+            By creating an account you agree with our Terms and Conditions.
+          </Text>
+        </View>
         {/* End Form */}
         <Button
           className="mt-8"
