@@ -68,19 +68,29 @@ const ProjectDetail = () => {
 
   if (!data)
     return (
-      <View className="flex-1 bg-white py-10">
+      <View className="flex-1 bg-white p-10">
         <Spinner isPrimaryColor size="large" className="mt-10" />
       </View>
     );
+  if (data.status !== 'Ready') {
+    return (
+      <View className="flex flex-1 items-center bg-white p-6">
+        <Text className="typo-[22-500] text-red">Your project is not ready yet!</Text>
+        <Text className="typo-[14-400] leading-snug text-black my-2">
+          It will be ready coming soon! if it takes so long you can contact us.
+        </Text>
+      </View>
+    );
+  }
   return (
     <View className="flex flex-1 bg-white">
       <ScrollView contentContainerClassName="p-6 bg-white" className="flex flex-1">
-        <Text className="typo-[24-500] text-black">Download the result</Text>
-        <Text className="typo-[16-400] text-black my-2">
+        <Text className="typo-[22-500] text-black">Your log is ready</Text>
+        <Text className="typo-[14-400] leading-snug text-black my-2">
           Your AI-crafted results are ready! Download the CSV files of your voice data, transformed
           into tables by our advanced AI. Enjoy!
         </Text>
-        <Button className="bg-primary flex-row h-11" onPress={handleDownloadCSV}>
+        <Button className="bg-primary flex-row h-11 mt-2" onPress={handleDownloadCSV}>
           <FileDown size={20} className="text-white" />
           <Text className="text-white typo-[16-500] flex-1 ml-2">Download CSV file</Text>
         </Button>

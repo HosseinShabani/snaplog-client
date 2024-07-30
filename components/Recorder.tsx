@@ -85,7 +85,7 @@ const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
   }
 
   return (
-    <View className="flex flex-row justify-between items-center p-2 border border-gray-200 rounded-lg shadow-lg shadow-gray-300/30 bg-white">
+    <View className="flex flex-row justify-between items-center p-2 border border-dashed border-zinc-400 rounded-lg shadow-lg shadow-gray-300/50 bg-white">
       <View className="flex flex-row items-center gap-2.5">
         <Pressable
           onPress={recording ? stopRecording : startRecording}

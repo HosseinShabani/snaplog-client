@@ -152,7 +152,7 @@ const NewProject = () => {
           <TabsContent value="upload">
             <Button
               onPress={handleUploadAudio}
-              className="h-auto border-dashed border-zinc-400"
+              className="h-auto border-dashed border-zinc-400 shadow-lg shadow-gray-300/50"
               variant="outline"
             >
               <View className="flex flex-col items-center gap-1.5 py-2">

@@ -17,6 +17,10 @@ const Signup = () => {
   const [checked, setChecked] = useState(false);
 
   const handleSignup = async () => {
+    if (!checked) {
+      Alert.alert('You need to check the terms');
+      return;
+    }
     setLoading(true);
     const {
       data: { session },
