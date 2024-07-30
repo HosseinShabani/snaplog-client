@@ -1,161 +1,127 @@
-import { Pressable, Text, View } from 'react-native';
-import React, { FC, useRef, useState } from 'react';
-import { Sound } from 'expo-av/build/Audio';
-import { Audio, AVPlaybackStatus, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import { getMMSSFromMillis, isNil } from '@/lib/utils';
-import Animated from 'react-native-reanimated';
+import React from 'react';
+import { Alert, Pressable, Text, View } from 'react-native';
+import {
+  AndroidAudioEncoder,
+  AndroidOutputFormat,
+  IOSAudioQuality,
+  IOSOutputFormat,
+} from 'expo-av/build/Audio';
+import { Audio } from 'expo-av';
 
-type PropsT = {
-  onRecordFinish: (value: Sound) => void;
+import { cn, getMMSSFromMillis } from '@/lib/utils';
+import { PauseIcon, PlayIcon } from '@/lib/icons';
+import { Button } from '@/components/ui/button';
+
+type RecorderProps = {
+  onRecordFinish: (name: string, uri: string) => void;
 };
-const Recorder: FC<PropsT> = ({ onRecordFinish }) => {
-  const [recordFile, setRecordFile] = useState<Sound | null>(null);
+
+const RECORDING_PRESET = {
+  isMeteringEnabled: true,
+  android: {
+    extension: '.m4a',
+    outputFormat: AndroidOutputFormat.MPEG_4,
+    audioEncoder: AndroidAudioEncoder.AAC,
+    sampleRate: 44100,
+    numberOfChannels: 2,
+    bitRate: 128000,
+  },
+  ios: {
+    extension: '.m4a',
+    outputFormat: IOSOutputFormat.MPEG4AAC,
+    audioQuality: IOSAudioQuality.MEDIUM,
+    sampleRate: 44100,
+    numberOfChannels: 2,
+    bitRate: 128000,
+    linearPCMBitDepth: 16,
+    linearPCMIsBigEndian: false,
+    linearPCMIsFloat: false,
+  },
+  web: {
+    mimeType: 'audio/webm',
+    bitsPerSecond: 128000,
+  },
+};
+
+const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
+  const [recording, setRecording] = React.useState<Audio.Recording | undefined>();
+  const [status, setStatus] = React.useState<Audio.RecordingStatus | undefined>();
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const recording = useRef<Audio.Recording | null>(null);
-  const sound = useRef(null);
-  // const recordingSettings = Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY;
 
-  const [state, setState] = useState({
-    haveRecordingPermissions: false,
-    isLoading: false,
-    isPlaybackAllowed: false,
-    muted: false,
-    soundPosition: null,
-    soundDuration: null,
-    recordingDuration: null,
-    shouldPlay: false,
-    isPlaying: false,
-    isRecording: false,
-    fontLoaded: false,
-    shouldCorrectPitch: true,
-    volume: 1.0,
-    rate: 1.0,
-  });
-
-  const updateScreenForRecordingStatus = (status: Audio.RecordingStatus) => {
-    if (status.canRecord) {
-      setState(prevState => ({
-        ...prevState,
-        isRecording: status.isRecording,
-        recordingDuration: status.durationMillis,
-      }));
-    } else if (status.isDoneRecording) {
-      setState(prevState => ({
-        ...prevState,
-        isRecording: false,
-        recordingDuration: status.durationMillis,
-      }));
-      if (!state.isLoading) {
-        stopRecordingAndEnablePlayback();
-      }
-    }
-  };
-
-  const startRecording = async () => {
-    setState(prevState => ({ ...prevState, isLoading: true }));
-    setRecordFile(null);
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
-      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-      playThroughEarpieceAndroid: false,
-      staysActiveInBackground: true,
-    });
-    if (!isNil(recording.current)) {
-      recording.current.setOnRecordingStatusUpdate(null);
-      recording.current = null;
-    }
-    const newRecording = new Audio.Recording();
-    // await newRecording.prepareToRecordAsync(recordingSettings);
-    await newRecording.prepareToRecordAsync();
-    newRecording.setOnRecordingStatusUpdate(updateScreenForRecordingStatus);
-    recording.current = newRecording;
-    await recording.current.startAsync();
-    setState(prevState => ({ ...prevState, isLoading: false }));
-  };
-
-  const updateScreenForSoundStatus = (status: AVPlaybackStatus) => {
-    if (status.isLoaded) {
-      setState(prevState => ({
-        ...prevState,
-        soundDuration: status.durationMillis ?? null,
-        soundPosition: status.positionMillis,
-        shouldPlay: status.shouldPlay,
-        isPlaying: status.isPlaying,
-        rate: status.rate,
-        muted: status.isMuted,
-        volume: status.volume,
-        shouldCorrectPitch: status.shouldCorrectPitch,
-        isPlaybackAllowed: true,
-      }));
-    } else {
-      setState(prevState => ({
-        ...prevState,
-        soundDuration: null,
-        soundPosition: null,
-        isPlaybackAllowed: false,
-      }));
-    }
-  };
-
-  const stopRecording = async () => {
-    setState(prevState => ({ ...prevState, isLoading: true }));
-    if (!recording.current) {
-      return;
-    }
+  async function startRecording() {
     try {
-      await recording.current.stopAndUnloadAsync();
-    } catch (error) {
-      setState(prevState => ({ ...prevState, isLoading: false }));
-      return;
+      if (permissionResponse?.status !== 'granted') {
+        await requestPermission();
+      }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+      const { recording } = await Audio.Recording.createAsync(RECORDING_PRESET, setStatus);
+      setRecording(recording);
+    } catch (err) {
+      console.error('Failed to start recording', err);
     }
+  }
+
+  async function stopRecording() {
+    await recording?.stopAndUnloadAsync();
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
-      interruptionModeIOS: InterruptionModeIOS.DoNotMix,
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
-      interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
-      playThroughEarpieceAndroid: false,
-      staysActiveInBackground: true,
     });
-    const { sound: newSound } = await recording.current.createNewLoadedSoundAsync(
-      {
-        isLooping: true,
-        isMuted: state.muted,
-        volume: state.volume,
-        rate: state.rate,
-        shouldCorrectPitch: state.shouldCorrectPitch,
-      },
-      updateScreenForSoundStatus,
-    );
-    console.log(onRecordFinish, '2222');
-    onRecordFinish(newSound);
-    setState(prevState => ({ ...prevState, isLoading: false }));
-  };
-
-  const onRecordPressed = () => {
-    if (state.isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+    const uri = recording?.getURI();
+    if (!uri) {
+      Alert.alert('Error on creating audio');
+      return;
     }
-  };
+    onRecordFinish(`recording-${Date.now()}`, uri);
+    setRecording(undefined);
+    setStatus(undefined);
+  }
+
+  async function pauseRecording() {
+    if (status?.isRecording) await recording?.pauseAsync();
+    else await recording?.startAsync();
+  }
+
   return (
-    <View className="flex flex-col flex-1 justify-end bg-emerald-500 items-center">
-      {!isNil(state.recordingDuration) && (
-        <Text className="typo-[14-400] text-black mb-2">
-          {getMMSSFromMillis(state.recordingDuration)}
-        </Text>
-      )}
-      <Pressable onPress={onRecordPressed}>
-        <View className="w-16 h-16 justify-center items-center rounded-full bg-white border-2 border-gray-30 p-2">
-          <Animated.View className="rounded-full bg-red" />
-        </View>
-      </Pressable>
-      <Text className="typo-[16-400] text-black mt-2">
-        {recording ? 'Tap to stop' : 'Tap to start'}
+    <View className="flex flex-row justify-between items-center p-2 border border-gray-200 rounded-lg shadow-lg shadow-gray-300/30 bg-white">
+      <View className="flex flex-row items-center gap-2.5">
+        <Pressable
+          onPress={recording ? stopRecording : startRecording}
+          className={cn(
+            'bg-black border-2 border-black px-3 py-2 rounded-md gap-2.5 flex flex-row items-center',
+            {
+              'bg-white': !!recording,
+            },
+          )}
+        >
+          <View
+            className={cn('w-3.5 h-3.5 bg-red rounded-full', {
+              'rounded-sm': !!recording,
+            })}
+          />
+          <Text
+            className={cn('typo-[16-400] text-white', {
+              'text-black': !!recording,
+            })}
+          >
+            {recording ? 'Stop' : 'Start'}
+          </Text>
+        </Pressable>
+        {!!recording && (
+          <Button variant="ghost" className="p-1 h-auto flex-row" onPress={pauseRecording}>
+            {status?.isRecording ? (
+              <PauseIcon size={16} className="text-black " />
+            ) : (
+              <PlayIcon size={16} className="text-black mr-0.5" />
+            )}
+            <Text className="typo-[14-500]">{status?.isRecording ? 'Pause' : 'Resume'}</Text>
+          </Button>
+        )}
+      </View>
+      <Text className="typo-[16-400] text-black/50">
+        {getMMSSFromMillis(status?.durationMillis ?? 0)}
       </Text>
     </View>
   );

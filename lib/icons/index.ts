@@ -5,3 +5,4 @@ export * from './ChevronRight';
 export * from './ChevronLeft';
 export * from './DotIcon';
 export * from './Upload';
+export * from './PauseIcon';

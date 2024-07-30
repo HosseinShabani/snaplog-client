@@ -13,7 +13,7 @@ import Slider from '@react-native-community/slider';
 import { cn, getMMSSFromMillis, isNil } from '@/lib/utils';
 
 const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
-  const sound = useRef<Audio.Sound>(source);
+  const [sound, setSound] = useState<Audio.Sound | null>(source);
   const isSeeking = useRef(false);
   const shouldPlayAtEndOfSeek = useRef(false);
   const [state, setState] = useState({
@@ -25,37 +25,48 @@ const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
   });
 
   const onSeekSliderSlidingComplete = async (value: number) => {
-    if (sound.current != null) {
+    if (sound != null) {
       isSeeking.current = false;
       const seekPosition = value * (state.soundDuration || 0);
       if (shouldPlayAtEndOfSeek.current) {
-        sound.current.playFromPositionAsync(seekPosition);
+        sound.playFromPositionAsync(seekPosition);
       } else {
-        sound.current.setPositionAsync(seekPosition);
+        sound.setPositionAsync(seekPosition);
       }
     }
   };
 
   const getSeekSliderPosition = () => {
-    if (sound.current != null && state.soundPosition != null && state.soundDuration != null) {
+    if (sound != null && state.soundPosition != null && state.soundDuration != null) {
       return state.soundPosition / state.soundDuration;
     }
     return 0;
   };
 
   const onSeekSliderValueChange = (value: number) => {
-    if (sound.current != null && !isSeeking.current) {
+    if (sound != null && !isSeeking.current) {
       isSeeking.current = true;
       shouldPlayAtEndOfSeek.current = state.shouldPlay;
-      sound.current.pauseAsync();
+      sound.pauseAsync();
       setState(s => ({ ...s, isPlaying: false }));
     }
   };
 
   useEffect(() => {
-    return !isNil(sound.current)
+    setSound(source);
+    setState({
+      isLoading: false,
+      soundPosition: null,
+      soundDuration: null,
+      shouldPlay: false,
+      isPlaying: false,
+    });
+  }, [source]);
+
+  useEffect(() => {
+    return !isNil(sound)
       ? () => {
-          sound.current?.unloadAsync();
+          sound?.unloadAsync();
         }
       : undefined;
   }, [sound]);
@@ -70,7 +81,7 @@ const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
   }, [state]);
 
   const getPlaybackTimestamp = () => {
-    if (!isNil(sound.current) && !isNil(state.soundPosition) && !isNil(state.soundDuration)) {
+    if (!isNil(sound) && !isNil(state.soundPosition) && !isNil(state.soundDuration)) {
       return `${getMMSSFromMillis(state.soundPosition)} / ${getMMSSFromMillis(
         state.soundDuration,
       )}`;
@@ -79,12 +90,12 @@ const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
   };
 
   const onPlayPausePressed = () => {
-    if (!isNil(sound.current)) {
+    if (!isNil(sound)) {
       if (state.isPlaying) {
-        sound.current.pauseAsync();
+        sound.pauseAsync();
         setState(s => ({ ...s, isPlaying: false }));
       } else {
-        sound.current.playAsync();
+        sound.playAsync();
         setState(s => ({ ...s, isPlaying: true }));
       }
     }

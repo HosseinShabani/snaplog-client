@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { FlatList, Pressable, View, Text } from 'react-native';
 import { Link, useNavigation } from 'expo-router';
-import { format, formatDistance, formatRelative, subDays } from 'date-fns';
+import { format } from 'date-fns';
 
 import { ProjectT } from '@/constants/ProjectConst';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ const ProjectCard: FC<ProjectT> = ({ created_at, id, status }) => {
     if (status === 'Error') return <Text className="typo-[13-500] text-red">Error</Text>;
     if (status === 'Ready') return <Text className="typo-[13-500] text-green-500">Ready</Text>;
     return <Text className="typo-[13-500] text-blue-500">Processing</Text>;
-    // else return <Text className="typo-[13-500] text-green-500">Uploading 2.4 MB/250 MB</Text>;
   };
   return (
     <Link asChild href={`/projects/${id}`}>
@@ -58,7 +57,11 @@ const Projects = () => {
     supabase
       .channel('room1')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'submissions' }, payload => {
-        console.log('Change received!', payload);
+        if (payload.eventType === 'UPDATE') {
+          setData(state =>
+            state.map(i => (i.id === payload.new.id ? (payload.new as ProjectT) : i)),
+          );
+        }
       })
       .subscribe();
     return () => {
