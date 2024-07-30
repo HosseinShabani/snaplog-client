@@ -11,8 +11,9 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "deploy": "npx vercel",
-    "web:build": "npx expo export -p web",
-    "web:serve": "npx serve dist --single"
+    "web:build": "npm run tailwind:setup && npx expo export -p web",
+    "web:serve": "npx serve dist --single",
+    "tailwind:setup": "npx tailwindcss --input lib/global.css"
   },
   "jest": {
     "preset": "jest-expo"
@@ -23,6 +24,7 @@
     "@react-native-community/slider": "4.5.2",
     "@react-navigation/native": "^6.0.2",
     "@rn-primitives/checkbox": "^1.0.3",
+    "@rn-primitives/dropdown-menu": "^1.0.3",
     "@rn-primitives/portal": "^1.0.3",
     "@rn-primitives/select": "^1.0.4",
     "@rn-primitives/slot": "^1.0.3",
@@ -38,10 +40,12 @@
     "expo-av": "~14.0.6",
     "expo-constants": "~16.0.2",
     "expo-document-picker": "~12.0.2",
+    "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
     "expo-linear-gradient": "~13.0.2",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.18",
+    "expo-sharing": "~12.0.1",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
@@ -61,9 +65,7 @@
     "tailwind-merge": "^2.4.0",
     "tailwindcss": "^3.4.7",
     "tailwindcss-animate": "^1.0.7",
-    "zustand": "^4.5.4",
-    "expo-file-system": "~17.0.1",
-    "expo-sharing": "~12.0.1"
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
