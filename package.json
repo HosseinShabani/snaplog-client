@@ -13,7 +13,7 @@
     "deploy": "npx vercel",
     "web:build": "npm run tailwind:setup && npx expo export -p web",
     "web:serve": "npx serve dist --single",
-    "tailwind:setup": "npx tailwindcss --input lib/global.css"
+    "tailwind:setup": "npx tailwindcss --input lib/global.css --output node_modules/.cache/nativewind/global.css.web.css"
   },
   "jest": {
     "preset": "jest-expo"
