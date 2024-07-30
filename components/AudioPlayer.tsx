@@ -80,11 +80,16 @@ const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
     }
   }, [state]);
 
-  const getPlaybackTimestamp = () => {
-    if (!isNil(sound) && !isNil(state.soundPosition) && !isNil(state.soundDuration)) {
-      return `${getMMSSFromMillis(state.soundPosition)} / ${getMMSSFromMillis(
-        state.soundDuration,
-      )}`;
+  const getPosition = () => {
+    if (!isNil(sound) && !isNil(state.soundPosition)) {
+      return `${getMMSSFromMillis(state.soundPosition)}`;
+    }
+    return '';
+  };
+
+  const getDuartion = () => {
+    if (!isNil(sound) && !isNil(state.soundDuration)) {
+      return `${getMMSSFromMillis(state.soundDuration)}`;
     }
     return '';
   };
@@ -119,7 +124,10 @@ const AudioPlayer: FC<PropsT> = ({ source, className }): JSX.Element => {
           maximumTrackTintColor="#e9e9e9"
           minimumTrackTintColor="#0096FF"
         />
-        <Text className="typo-[14-400] text-black">{getPlaybackTimestamp()}</Text>
+        <View className="flex flex-row justify-between items-center mt-1">
+          <Text className="typo-[14-400] text-black">{getPosition(state.soundPosition)}</Text>
+          <Text className="typo-[14-400] text-black">{getDuartion(state.soundDuration)}</Text>
+        </View>
       </View>
       <View className="flex flow-row justify-center items-center">
         <Pressable onPress={onPlayPausePressed} disabled={state.isLoading}>
