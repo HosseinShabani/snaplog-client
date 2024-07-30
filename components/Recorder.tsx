@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import {
   AndroidAudioEncoder,
   AndroidOutputFormat,
@@ -11,6 +11,7 @@ import { Audio } from 'expo-av';
 import { cn, getMMSSFromMillis } from '@/lib/utils';
 import { PauseIcon, PlayIcon } from '@/lib/icons';
 import { Button } from '@/components/ui/button';
+import { toast } from 'burnt';
 
 type RecorderProps = {
   onRecordFinish: (name: string, uri: string) => void;
@@ -71,7 +72,7 @@ const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
     });
     const uri = recording?.getURI();
     if (!uri) {
-      Alert.alert('Error on creating audio');
+      toast({ title: 'Error on creating audio', haptic: 'error', preset: 'error' });
       return;
     }
     onRecordFinish(`recording-${Date.now()}`, uri);

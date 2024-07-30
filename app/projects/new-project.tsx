@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { Audio } from 'expo-av';
@@ -19,6 +19,7 @@ import { supabase } from '@/lib/supabase';
 import Tabbar from '@/components/Tabbar';
 import { TabsContent } from '@/components/ui/tabs';
 import Recorder from '@/components/Recorder';
+import { toast } from 'burnt';
 
 type AudioFile = {
   name: string;
@@ -80,7 +81,7 @@ const NewProject = () => {
         upsert: false,
       });
       if (upload.error && upload.error.message !== 'The resource already exists') {
-        Alert.alert(upload.error.message);
+        toast({ title: upload.error.message, haptic: 'error', preset: 'error' });
         setUploading(false);
         return;
       }
@@ -91,7 +92,7 @@ const NewProject = () => {
         .single();
       setUploading(false);
       if (insertSubmission.error) {
-        Alert.alert(insertSubmission.error.message);
+        toast({ title: insertSubmission.error.message, haptic: 'error', preset: 'error' });
         return;
       }
       supabase.functions.invoke('create-submission', {

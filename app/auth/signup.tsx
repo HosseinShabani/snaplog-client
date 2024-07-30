@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Text as TextButton } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'burnt';
 
 const Signup = () => {
   const { navigate } = useRouter();
@@ -18,7 +19,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     if (!checked) {
-      Alert.alert('You need to check the terms');
+      toast({ title: 'You need to check the terms', haptic: 'error', preset: 'error' });
       return;
     }
     setLoading(true);
@@ -32,8 +33,13 @@ const Signup = () => {
     });
 
     setLoading(false);
-    if (error) Alert.alert(error.message);
-    else if (!session) Alert.alert('Please check your inbox for email verification!');
+    if (error) toast({ title: error.message, haptic: 'error', preset: 'error' });
+    else if (!session)
+      toast({
+        title: 'Please check your inbox for email verification!',
+        haptic: 'warning',
+        preset: 'none',
+      });
     else navigate('/');
   };
 

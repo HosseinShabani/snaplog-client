@@ -5,6 +5,7 @@ import { AppState } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { PortalHost } from '@rn-primitives/portal';
 import 'react-native-reanimated';
+import { Toaster } from 'burnt/web';
 
 import '@/lib/global.css';
 import { supabase } from '@/lib/supabase';
@@ -69,6 +70,7 @@ export default function RootLayout() {
     <>
       <Slot />
       <PortalHost />
+      <Toaster position="top-left" richColors />
     </>
   );
 }
