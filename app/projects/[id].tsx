@@ -16,6 +16,7 @@ const ProjectDetail = () => {
   const [data, setData] = useState<ProjectT | null>(null);
   const [downloading, setDownloading] = useState(false);
   const { id } = useLocalSearchParams();
+  const title = data?.created_at ? format(new Date(data.created_at), 'yyyy/MM/dd HH:mm a') : '';
 
   const handleDownloadCSV = async () => {
     if (!data?.modified_content) return;
@@ -24,10 +25,7 @@ const ProjectDetail = () => {
       return line.split(',').map(value => value.trim());
     });
     const csvContent = parsedData.map(line => line.join(',')).join('\n');
-    await downloadFile(
-      `${format(new Date(data.created_at), 'yyyy/MM/dd HH:mm a')}.csv`,
-      csvContent,
-    );
+    await downloadFile(`${title}.csv`, csvContent);
   };
 
   const handleDownloadRecording = async () => {
@@ -49,10 +47,7 @@ const ProjectDetail = () => {
       'audio/wave': 'wav',
       'audio/webm': 'webm',
     };
-    await downloadFile(
-      `${format(new Date(data.created_at), 'yyyy/MM/dd HH:mm a')}.${audioCodec[path.data.type.toLowerCase()]}`,
-      path.data,
-    );
+    await downloadFile(`${title}.${audioCodec[path.data.type.toLowerCase()]}`, path.data);
     setDownloading(false);
   };
 
@@ -65,8 +60,11 @@ const ProjectDetail = () => {
       .then(res => {
         setData(res.data as ProjectT);
       });
-    navigation.setOptions({ title: `Project ${id}` });
   }, []);
+
+  useEffect(() => {
+    navigation.setOptions({ title });
+  }, [data]);
 
   if (!data)
     return (

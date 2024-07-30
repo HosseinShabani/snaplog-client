@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,10 @@ const Signup = () => {
   };
 
   return (
-    <View className="flex flex-col bg-white px-6 py-6 flex-1">
+    <ScrollView
+      className="bg-white flex-1"
+      contentContainerClassName="flex-col min-h-full px-6 py-6 "
+    >
       <View className="flex flex-1">
         <Text className="typo-[24-500] text-black">Sign up to SnapLog</Text>
         {/* Form */}
@@ -44,15 +47,15 @@ const Signup = () => {
         <Input placeholder="johndoe@mail.com" onChangeText={setEmail} />
         <Text className="typo-[16-500] text-gray-80 mt-8 mb-2">Password</Text>
         <Input placeholder="+8 characters" secureTextEntry onChangeText={setPassword} />
-        <View className="flex flex-row gap-2 mt-4 items-center justify-start">
-          <Checkbox checked={checked} onCheckedChange={setChecked} />
-          <Text className="typo-[14-400] leading-normal text-zinc-500 text-left">
+        <View className="flex flex-row gap-2 mt-5 items-start justify-start">
+          <Checkbox checked={checked} onCheckedChange={setChecked} hitSlop={12} />
+          <Text className="typo-[14-400] leading-normal -mt-0.5 text-zinc-500 text-left">
             By creating an account you agree with our Terms and Conditions.
           </Text>
         </View>
         {/* End Form */}
         <Button
-          className="mt-8"
+          className="mt-6"
           isLoading={loading}
           variant={'default'}
           onPress={handleSignup}
@@ -61,13 +64,13 @@ const Signup = () => {
           <TextButton>Create Account</TextButton>
         </Button>
       </View>
-      <View className="flex flex-col justify-center items-center">
+      <View className="flex flex-col mt-8 justify-center items-center">
         <Text className="typo-[16-500] text-gray-80">Have an account?</Text>
         <Button size={'sm'} variant={'ghost'} onPress={() => navigate('/auth/login')}>
           <Text className="typo-[16-500] text-secondary">Login</Text>
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

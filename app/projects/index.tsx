@@ -41,7 +41,6 @@ const Projects = () => {
   useEffect(() => {
     navigation.setOptions({
       title: 'Projects',
-      headerRight: () => <Text className="typo-[24-500] text-black">Hello</Text>,
     });
   }, [navigation]);
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,10 @@ const Login = ({}) => {
   };
 
   return (
-    <View className="flex flex-col bg-white px-6 py-6 flex-1">
+    <ScrollView
+      className="flex-1 bg-white"
+      contentContainerClassName="flex-col min-h-full bg-white px-6 pt-6 pb-4"
+    >
       <View className="flex flex-1">
         <Text className="typo-[24-500] text-black">Log in to SnapLog</Text>
         {/* Form */}
@@ -39,13 +42,13 @@ const Login = ({}) => {
         <Text className="typo-[16-500] text-gray-80 mt-8 mb-2">Password</Text>
         <Input placeholder="+8 characters" secureTextEntry onChangeText={setPassword} />
         {/* End Form */}
-        <Button
+        {/* <Button
           className="mt-4 self-center"
           variant={'ghost'}
           onPress={() => navigate('/auth/forget-password')}
         >
           <Text className="typo-[16-500] text-secondary">Forget password?</Text>
-        </Button>
+        </Button> */}
         <Button
           isLoading={loading}
           className="mt-8"
@@ -56,13 +59,13 @@ const Login = ({}) => {
           <TextButton>Login</TextButton>
         </Button>
       </View>
-      <View className="flex flex-col justify-center items-center">
+      <View className="flex flex-col mt-6 justify-center items-center">
         <Text className="typo-[16-500] text-gray-80">Don't have an account?</Text>
         <Button size={'sm'} variant={'ghost'} onPress={() => navigate('/auth/signup')}>
           <Text className="typo-[16-500] text-secondary">Signup</Text>
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
