@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
+    "deploy": "npx vercel",
     "web:build": "npx expo export -p web",
     "web:serve": "npx serve dist --single"
   },
