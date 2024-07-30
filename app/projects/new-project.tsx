@@ -19,7 +19,11 @@ import { supabase } from '@/lib/supabase';
 import Tabbar from '@/components/Tabbar';
 import { TabsContent } from '@/components/ui/tabs';
 import Recorder from '@/components/Recorder';
-import { Sound } from 'expo-av/build/Audio';
+
+type AudioFile = {
+  name: string;
+  blob: Blob;
+};
 
 const NewProject = () => {
   const navigation = useNavigation();
@@ -28,7 +32,7 @@ const NewProject = () => {
   const settings = useSettings(state => state.settings);
   const [template, setTemplate] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
-  const [audioFile, setAudioFile] = useState<File | null | undefined>();
+  const [audioFile, setAudioFile] = useState<AudioFile | null | undefined>();
   const [soundFile, setSoundFile] = useState<Audio.Sound | null | undefined>();
   const [templateDesc, setTemplateDesc] = useState<string | undefined>();
   const [tabbar, _] = useState([
@@ -36,58 +40,75 @@ const NewProject = () => {
     { label: 'Upload audio', value: 'upload' },
   ]);
 
+  const createBlobSoundFile = async (uri: string): Promise<{ blob: Blob; sound: Audio.Sound }> => {
+    const base64 = await fetch(uri);
+    const blob = await base64.blob();
+    const { sound } = await Audio.Sound.createAsync({ uri });
+    return { blob, sound };
+  };
+
   const handleUploadAudio = async () => {
     const file = await DocumentPicker.getDocumentAsync({
       type: 'audio/*',
     });
     if (!file?.assets?.[0]) return;
-    setAudioFile(file.assets[0].file);
-    const { sound } = await Audio.Sound.createAsync({ uri: file.assets[0].uri });
+    const { uri, name } = file.assets[0];
+    const { sound, blob } = await createBlobSoundFile(uri);
+    setAudioFile({
+      blob,
+      name: `${name}-${Date.now()}`,
+    });
     setSoundFile(sound);
   };
 
-  const onRecordFinish = async (file: Sound | null) => {
-    console.log('fire', file);
-    setAudioFile(file);
-    const { sound } = await Audio.Sound.createAsync({ uri: file });
+  const onRecordFinish = async (name: string, uri: string) => {
+    const { sound, blob } = await createBlobSoundFile(uri);
+    setAudioFile({
+      blob,
+      name,
+    });
     setSoundFile(sound);
   };
 
   const handleSubmit = async () => {
     if (!audioFile) return;
-    setUploading(true);
-    const fileName = `${session?.user.id}/${audioFile.name}`;
-    const upload = await supabase.storage.from('record').upload(fileName, audioFile, {
-      cacheControl: '3600',
-      upsert: false,
-    });
-    if (upload.error && upload.error.message !== 'The resource already exists') {
-      Alert.alert(upload.error.message);
+    try {
+      setUploading(true);
+      const fileName = `${session?.user.id}/${audioFile.name}`;
+      const upload = await supabase.storage.from('record').upload(fileName, audioFile.blob, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+      if (upload.error && upload.error.message !== 'The resource already exists') {
+        Alert.alert(upload.error.message);
+        setUploading(false);
+        return;
+      }
+      const insertSubmission = await supabase
+        .from('submissions')
+        .insert([{ recording: upload?.data?.path ?? `${fileName}`, user_id: session?.user.id }])
+        .select()
+        .single();
       setUploading(false);
-      return;
-    }
-
-    const insertSubmission = await supabase
-      .from('submissions')
-      .insert([{ recording: upload?.data?.path ?? `${fileName}`, user: session?.user.id }])
-      .select()
-      .single();
-    setUploading(false);
-    if (insertSubmission.error) {
-      Alert.alert(insertSubmission.error.message);
-      return;
-    }
-    supabase.functions.invoke('create-submission', {
-      body: {
-        record: {
-          ...insertSubmission.data,
-          type: audioFile.type,
-          template_prompt: settings.default_template,
-          system_prompt: settings.system_prompt,
+      if (insertSubmission.error) {
+        Alert.alert(insertSubmission.error.message);
+        return;
+      }
+      supabase.functions.invoke('create-submission', {
+        body: {
+          record: {
+            ...insertSubmission.data,
+            type: audioFile.blob.type,
+            template_prompt: settings.default_template,
+            system_prompt: settings.system_prompt,
+          },
         },
-      },
-    });
-    router.replace('/projects');
+      });
+      router.replace('/projects');
+    } catch (e) {
+      setUploading(false);
+      console.error(e);
+    }
   };
 
   useEffect(() => {
@@ -123,17 +144,16 @@ const NewProject = () => {
           </>
         )}
         <Text className="typo-[20-500] mt-12 mb-3">Record or upload your file</Text>
+        {soundFile && <AudioPlayer className="mb-3" source={soundFile} />}
         <Tabbar data={tabbar}>
           <TabsContent value="record">
             <Recorder onRecordFinish={onRecordFinish} />
           </TabsContent>
           <TabsContent value="upload">
-            {soundFile && <AudioPlayer className="mb-3" source={soundFile} />}
             <Button
               onPress={handleUploadAudio}
-              className="h-auto border-dashed border-zinc-400"
+              className="h-auto border-dashed border-zinc-400 shadow-lg shadow-gray-300/50"
               variant="outline"
-              disabled={!!audioFile}
             >
               <View className="flex flex-col items-center gap-1.5 py-2">
                 <Upload className="text-zinc-600" size={24} />

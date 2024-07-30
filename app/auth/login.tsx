@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Text as TextButton } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const Login = ({}) => {
   const { navigate } = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const handleLogin = async () => {
+    if (!checked) {
+      Alert.alert('You need to check the terms');
+      return;
+    }
     setLoading(true);
     const {
       data: { session },
@@ -30,7 +36,10 @@ const Login = ({}) => {
   };
 
   return (
-    <View className="flex flex-col bg-white px-6 py-6 flex-1">
+    <ScrollView
+      className="flex-1 bg-white"
+      contentContainerClassName="flex-col min-h-full bg-white px-6 pt-6 pb-4"
+    >
       <View className="flex flex-1">
         <Text className="typo-[24-500] text-black">Log in to SnapLog</Text>
         {/* Form */}
@@ -38,14 +47,20 @@ const Login = ({}) => {
         <Input placeholder="johndoe@mail.com" onChangeText={setEmail} />
         <Text className="typo-[16-500] text-gray-80 mt-8 mb-2">Password</Text>
         <Input placeholder="+8 characters" secureTextEntry onChangeText={setPassword} />
+        <View className="flex flex-row gap-2 mt-5 items-start justify-start">
+          <Checkbox checked={checked} onCheckedChange={setChecked} hitSlop={12} />
+          <Text className="typo-[14-400] leading-normal -mt-0.5 text-zinc-500 text-left">
+            By creating an account you agree with our Terms and Conditions.
+          </Text>
+        </View>
         {/* End Form */}
-        <Button
+        {/* <Button
           className="mt-4 self-center"
           variant={'ghost'}
           onPress={() => navigate('/auth/forget-password')}
         >
           <Text className="typo-[16-500] text-secondary">Forget password?</Text>
-        </Button>
+        </Button> */}
         <Button
           isLoading={loading}
           className="mt-8"
@@ -56,13 +71,13 @@ const Login = ({}) => {
           <TextButton>Login</TextButton>
         </Button>
       </View>
-      <View className="flex flex-col justify-center items-center">
+      {/* <View className="flex flex-col mt-6 justify-center items-center">
         <Text className="typo-[16-500] text-gray-80">Don't have an account?</Text>
         <Button size={'sm'} variant={'ghost'} onPress={() => navigate('/auth/signup')}>
           <Text className="typo-[16-500] text-secondary">Signup</Text>
         </Button>
-      </View>
-    </View>
+      </View> */}
+    </ScrollView>
   );
 };
 

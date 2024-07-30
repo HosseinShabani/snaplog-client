@@ -16,9 +16,9 @@ const Tabbar: FC<PropsT> = ({ data, className, children }) => {
     <Tabs
       value={value}
       onValueChange={setValue}
-      className={cn('w-full max-w-[400px] mx-auto flex-col gap-1.5', className)}
+      className={cn('w-full mx-auto flex-col gap-2', className)}
     >
-      <TabsList className="flex-row w-full bg-gray-20/50">
+      <TabsList className="flex-row w-full bg-gray-200">
         {data.map(i => (
           <TabsTrigger key={i.value} value={i.value} className="flex-1">
             <Text>{i.label}</Text>
