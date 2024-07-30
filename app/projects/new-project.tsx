@@ -72,7 +72,14 @@ const NewProject = () => {
   };
 
   const handleSubmit = async () => {
-    if (!audioFile) return;
+    if (!template)
+      return toast({ title: 'Please select template', haptic: 'error', preset: 'error' });
+    if (!audioFile)
+      return toast({
+        title: 'Please upload audio or record audio',
+        haptic: 'error',
+        preset: 'error',
+      });
     try {
       setUploading(true);
       const fileName = `${session?.user.id}/${audioFile.name}`;
@@ -167,7 +174,6 @@ const NewProject = () => {
       <Button
         variant={'default'}
         className="flex-row gap-2 w-full"
-        disabled={!audioFile || !template}
         isLoading={uploading}
         onPress={handleSubmit}
       >
