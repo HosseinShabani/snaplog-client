@@ -51,11 +51,12 @@ const NewProject = () => {
 
   const handleUploadAudio = async () => {
     const file = await DocumentPicker.getDocumentAsync({
-      type: 'audio/*',
+      type: 'audio/*,audio/x-m4a',
     });
     if (!file?.assets?.[0]) return;
     const { uri, name } = file.assets[0];
     const { sound, blob } = await createBlobSoundFile(uri);
+    console.log(blob);
     setAudioFile({
       blob,
       name: `${name}-${Date.now()}`,

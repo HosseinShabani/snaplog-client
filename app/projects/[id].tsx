@@ -46,6 +46,7 @@ const ProjectDetail = () => {
       'audio/wav': 'wav',
       'audio/wave': 'wav',
       'audio/webm': 'webm',
+      'audio/x-m4a': 'm4a',
     };
     await downloadFile(`${title}.${audioCodec[path.data.type.toLowerCase()]}`, path.data);
     setDownloading(false);
