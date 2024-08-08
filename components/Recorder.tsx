@@ -39,7 +39,6 @@ const RECORDING_PRESET = {
     linearPCMIsFloat: false,
   },
   web: {
-    mimeType: 'audio/webm',
     bitsPerSecond: 128000,
   },
 };

@@ -31,6 +31,7 @@ const NewProject = () => {
   const router = useRouter();
   const session = useAuth(state => state.session);
   const settings = useSettings(state => state.settings);
+  const [templates, setTemplates] = useState<{ id: number; name: string; prompt: string }[]>([]);
   const [template, setTemplate] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
   const [audioFile, setAudioFile] = useState<AudioFile | null | undefined>();
@@ -64,6 +65,7 @@ const NewProject = () => {
 
   const onRecordFinish = async (name: string, uri: string) => {
     const { sound, blob } = await createBlobSoundFile(uri);
+    console.log(blob);
     setAudioFile({
       blob,
       name,
@@ -94,7 +96,13 @@ const NewProject = () => {
       }
       const insertSubmission = await supabase
         .from('submissions')
-        .insert([{ recording: upload?.data?.path ?? `${fileName}`, user_id: session?.user.id }])
+        .insert([
+          {
+            recording: upload?.data?.path ?? `${fileName}`,
+            user_id: session?.user.id,
+            template: template === 'generic' ? null : template,
+          },
+        ])
         .select()
         .single();
       setUploading(false);
@@ -102,12 +110,16 @@ const NewProject = () => {
         toast({ title: insertSubmission.error.message, haptic: 'error', preset: 'error' });
         return;
       }
+      const template_prompt =
+        template === 'generic'
+          ? settings.default_template
+          : (templates.find(i => i.id.toString() === template)?.prompt ?? '');
       supabase.functions.invoke('create-submission', {
         body: {
           record: {
             ...insertSubmission.data,
             type: audioFile.blob.type,
-            template_prompt: settings.default_template,
+            template_prompt,
             system_prompt: settings.system_prompt,
           },
         },
@@ -118,6 +130,17 @@ const NewProject = () => {
       console.error(e);
     }
   };
+
+  const fetchTemplates = async () => {
+    const req = await supabase.from('templates').select('*');
+    if (req.data?.length) {
+      setTemplates(req.data);
+    }
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
 
   useEffect(() => {
     if (template === 'generic') {
@@ -143,6 +166,11 @@ const NewProject = () => {
             <SelectItem label="Generic" value="generic">
               Generic
             </SelectItem>
+            {templates.map(item => (
+              <SelectItem label={item.name} value={String(item.id)}>
+                {item.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {templateDesc && (

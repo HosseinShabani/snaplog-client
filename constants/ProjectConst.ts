@@ -6,6 +6,7 @@ export type ProjectT = {
   user_prompt?: string;
   transcribed_content?: string;
   modified_content?: string;
+  template?: { name: string };
 };
 
 export type TemplateT = {

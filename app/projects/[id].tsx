@@ -54,7 +54,7 @@ const ProjectDetail = () => {
   useEffect(() => {
     supabase
       .from('submissions')
-      .select('*')
+      .select('*, template (name)')
       .eq('id', id)
       .single()
       .then(res => {
@@ -102,7 +102,7 @@ const ProjectDetail = () => {
         {/* Second section */}
         <Text className="typo-[20-500] text-black mb-4">Project details</Text>
         <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
-          <Text className="typo-[14-500]">Template</Text>: Generic
+          <Text className="typo-[14-500]">Template</Text>: {data.template?.name ?? 'Generic'}
         </Text>
         <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
           <Text className="typo-[14-500]">Transcribed Text</Text>: {data.transcribed_content}

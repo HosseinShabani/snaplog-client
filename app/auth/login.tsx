@@ -6,20 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Text as TextButton } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
-import { Checkbox } from '@/components/ui/checkbox';
 
 const Login = ({}) => {
   const { navigate } = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checked, setChecked] = useState(false);
 
   const handleLogin = async () => {
-    if (!checked) {
-      toast({ title: 'You need to check the terms', haptic: 'error', preset: 'error' });
-      return;
-    }
     setLoading(true);
     const {
       data: { session },
@@ -52,12 +46,6 @@ const Login = ({}) => {
         <Input placeholder="johndoe@mail.com" onChangeText={setEmail} />
         <Text className="typo-[16-500] text-gray-80 mt-8 mb-2">Password</Text>
         <Input placeholder="+8 characters" secureTextEntry onChangeText={setPassword} />
-        <View className="flex flex-row gap-2 mt-5 items-start justify-start">
-          <Checkbox checked={checked} onCheckedChange={setChecked} hitSlop={12} />
-          <Text className="typo-[14-400] leading-normal -mt-0.5 text-zinc-500 text-left">
-            By creating an account you agree with our Terms and Conditions.
-          </Text>
-        </View>
         {/* End Form */}
         {/* <Button
           className="mt-4 self-center"
