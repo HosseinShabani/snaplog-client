@@ -11,7 +11,7 @@ export const isNil = <T>(item: T | undefined | null): item is undefined | null =
 
 export const getMMSSFromMillis = (millis: number) => {
   const totalSeconds = millis / 1000;
-  const seconds = Math.floor(totalSeconds % 60);
+  const seconds = Math.round(totalSeconds % 60);
   const minutes = Math.floor(totalSeconds / 60);
 
   const padWithZero = (number: number) => {

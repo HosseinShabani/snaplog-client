@@ -51,12 +51,11 @@ const NewProject = () => {
 
   const handleUploadAudio = async () => {
     const file = await DocumentPicker.getDocumentAsync({
-      type: 'audio/*,audio/x-m4a',
+      type: 'audio/*,audio/x-m4a,audio/m4a',
     });
     if (!file?.assets?.[0]) return;
     const { uri, name } = file.assets[0];
     const { sound, blob } = await createBlobSoundFile(uri);
-    console.log(blob);
     setAudioFile({
       blob,
       name: `${name}-${Date.now()}`,
@@ -64,9 +63,9 @@ const NewProject = () => {
     setSoundFile(sound);
   };
 
-  const onRecordFinish = async (name: string, uri: string) => {
-    const { sound, blob } = await createBlobSoundFile(uri);
-    console.log(blob);
+  const onRecordFinish = async (name: string, blob: Blob) => {
+    const uri = URL.createObjectURL(blob);
+    const { sound } = await Audio.Sound.createAsync({ uri });
     setAudioFile({
       blob,
       name,
@@ -129,6 +128,11 @@ const NewProject = () => {
     } catch (e) {
       setUploading(false);
       console.error(e);
+      toast({
+        title: 'Please try again',
+        haptic: 'error',
+        preset: 'error',
+      });
     }
   };
 
@@ -168,7 +172,7 @@ const NewProject = () => {
               Generic
             </SelectItem>
             {templates.map(item => (
-              <SelectItem label={item.name} value={String(item.id)}>
+              <SelectItem key={item.id} label={item.name} value={String(item.id)}>
                 {item.name}
               </SelectItem>
             ))}
