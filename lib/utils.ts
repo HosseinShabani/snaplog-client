@@ -15,6 +15,7 @@ export const getMMSSFromMillis = (millis: number) => {
   const minutes = Math.floor(totalSeconds / 60);
 
   const padWithZero = (number: number) => {
+    if (Number.isNaN(number)) return '00';
     const string = number.toString();
     if (number < 10) {
       return '0' + string;
