@@ -3,6 +3,7 @@ import { Text, View } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { Audio } from 'expo-av';
+import { toast } from 'burnt';
 
 import {
   Select,
@@ -19,12 +20,7 @@ import { supabase } from '@/lib/supabase';
 import Tabbar from '@/components/Tabbar';
 import { TabsContent } from '@/components/ui/tabs';
 import Recorder from '@/components/Recorder';
-import { toast } from 'burnt';
-
-type AudioFile = {
-  name: string;
-  blob: Blob;
-};
+import { AudioFile } from '@/lib/types';
 
 const NewProject = () => {
   const navigation = useNavigation();
@@ -35,7 +31,6 @@ const NewProject = () => {
   const [template, setTemplate] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
   const [audioFile, setAudioFile] = useState<AudioFile | null | undefined>();
-  const [soundFile, setSoundFile] = useState<Audio.Sound | null | undefined>();
   const [templateDesc, setTemplateDesc] = useState<string | undefined>();
   const [tabbar, _] = useState([
     { label: 'Record audio', value: 'record' },
@@ -59,8 +54,9 @@ const NewProject = () => {
     setAudioFile({
       blob,
       name: `${name}-${Date.now()}`,
+      uri,
+      sound,
     });
-    setSoundFile(sound);
   };
 
   const onRecordFinish = async (name: string, blob: Blob) => {
@@ -69,8 +65,9 @@ const NewProject = () => {
     setAudioFile({
       blob,
       name,
+      uri,
+      sound,
     });
-    setSoundFile(sound);
   };
 
   const handleSubmit = async () => {
@@ -185,7 +182,7 @@ const NewProject = () => {
           </>
         )}
         <Text className="typo-[20-500] mt-12 mb-3">Record or upload your file</Text>
-        {soundFile && <AudioPlayer className="mb-3" source={soundFile} />}
+        {audioFile && <AudioPlayer className="mb-3" source={audioFile} />}
         <Tabbar data={tabbar}>
           <TabsContent value="record">
             <Recorder onRecordFinish={onRecordFinish} />

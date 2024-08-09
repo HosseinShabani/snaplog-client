@@ -25,7 +25,10 @@ const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
         throw new Error(`Recording is not supported in this browser`);
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, {
+        mimeType: isSafari ? 'audio/mp4' : 'audio/mp3',
+        audioBitsPerSecond: 128000,
+      });
       mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
         if (currentTimestamp.current > 0) {
           const diffTime = Date.now() - currentTimestamp.current;
