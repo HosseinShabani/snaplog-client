@@ -22,7 +22,6 @@ import { TabsContent } from '@/components/ui/tabs';
 import Recorder from '@/components/Recorder';
 import { AudioFile } from '@/lib/types';
 import { Input } from '@/components/ui/input';
-import { format } from 'date-fns';
 
 const NewProject = () => {
   const navigation = useNavigation();

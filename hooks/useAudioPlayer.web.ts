@@ -112,6 +112,7 @@ export const useAudioPlayer = ({ source }: UseAudio) => {
   useEffect(() => {
     if (sound) {
       sound.onloadeddata = _onLoad;
+      sound.onloadedmetadata = _onLoad;
       sound.onerror = _onError;
       sound.ontimeupdate = _onUpdateStatus;
       sound.onplaying = _onUpdateStatus;
