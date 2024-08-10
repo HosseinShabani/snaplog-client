@@ -1,6 +1,6 @@
 import { ScrollView, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { useNavigation } from 'expo-router';
+import { Link, useNavigation } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import { FileDown, PlayIcon } from 'lucide-react-native';
 import { format } from 'date-fns';
@@ -110,6 +110,11 @@ const ProjectDetail = () => {
         </Text>
         <View className="w-full h-0.5 bg-gray-20 my-6" />
       </ScrollView>
+      <Link asChild href={`/projects/${id}/edit`}>
+        <Button variant="outline" className="m-6 mt-1">
+          <Text className="typo-[14-500] text-gray-80">Edit & Regenrate</Text>
+        </Button>
+      </Link>
     </View>
   );
 };
