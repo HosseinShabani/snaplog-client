@@ -24,6 +24,7 @@
     "@react-native-community/slider": "4.5.2",
     "@react-navigation/native": "^6.0.2",
     "@rn-primitives/checkbox": "^1.0.3",
+    "@rn-primitives/dialog": "^1.0.3",
     "@rn-primitives/dropdown-menu": "^1.0.3",
     "@rn-primitives/portal": "^1.0.3",
     "@rn-primitives/select": "^1.0.4",
