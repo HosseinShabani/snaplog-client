@@ -37,7 +37,7 @@ const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: isSafari ? 'audio/mp4' : 'audio/mp3',
+        mimeType: isSafari ? 'audio/mp4' : 'audio/webm',
         audioBitsPerSecond: 128000,
       });
       mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
@@ -63,7 +63,7 @@ const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
         currentTimestamp.current = 0;
         setTime(0);
         const audioBlob = new Blob(audioChunksRef.current, {
-          type: isSafari ? 'audio/mp4' : 'audio/mp3',
+          type: isSafari ? 'audio/mp4' : 'audio/webm',
         });
         onRecordFinish(`recording-${Date.now()}`, audioBlob);
         audioChunksRef.current = [];
