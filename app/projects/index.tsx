@@ -10,7 +10,7 @@ import { PlusIcon } from '@/lib/icons';
 import { supabase } from '@/lib/supabase';
 import Spinner from '@/components/Spinner';
 
-const ProjectCard: FC<ProjectT> = ({ created_at, id, status }) => {
+const ProjectCard: FC<ProjectT> = ({ created_at, id, status, name }) => {
   const renderStatus = (): JSX.Element => {
     if (status === 'Error') return <Text className="typo-[13-500] text-red">Error</Text>;
     if (status === 'Ready') return <Text className="typo-[13-500] text-green-500">Ready</Text>;
@@ -21,7 +21,7 @@ const ProjectCard: FC<ProjectT> = ({ created_at, id, status }) => {
       <Pressable className="flex flex-col py-4">
         <View className=" flex-row justify-between items-center">
           <Text className="typo-[16-500] text-gray-80">
-            {format(new Date(created_at), 'yyyy/MM/dd HH:mm a')}
+            {name || format(new Date(created_at), 'yyyy/MM/dd HH:mm a')}
           </Text>
         </View>
         <View className=" flex-row justify-between items-center mt-1">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { Audio } from 'expo-av';
@@ -21,6 +21,8 @@ import Tabbar from '@/components/Tabbar';
 import { TabsContent } from '@/components/ui/tabs';
 import Recorder from '@/components/Recorder';
 import { AudioFile } from '@/lib/types';
+import { Input } from '@/components/ui/input';
+import { format } from 'date-fns';
 
 const NewProject = () => {
   const navigation = useNavigation();
@@ -29,6 +31,7 @@ const NewProject = () => {
   const settings = useSettings(state => state.settings);
   const [templates, setTemplates] = useState<{ id: number; name: string; prompt: string }[]>([]);
   const [template, setTemplate] = useState<string | undefined>();
+  const [projectName, setProjectName] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
   const [audioFile, setAudioFile] = useState<AudioFile | null | undefined>();
   const [templateDesc, setTemplateDesc] = useState<string | undefined>();
@@ -50,13 +53,15 @@ const NewProject = () => {
     });
     if (!file?.assets?.[0]) return;
     const { uri, name } = file.assets[0];
+    const fileName = name.split('.').length >= 2 ? name.split('.').slice(0, -1).join('.') : name;
     const { sound, blob } = await createBlobSoundFile(uri);
     setAudioFile({
       blob,
-      name: `${name}-${Date.now()}`,
+      name: `${fileName}-${Date.now()}`,
       uri,
       sound,
     });
+    if (!projectName) setProjectName(fileName);
   };
 
   const onRecordFinish = async (name: string, blob: Blob) => {
@@ -95,6 +100,7 @@ const NewProject = () => {
         .from('submissions')
         .insert([
           {
+            name: projectName,
             recording: upload?.data?.path ?? `${fileName}`,
             user_id: session?.user.id,
             template: template === 'generic' ? null : template,
@@ -157,9 +163,12 @@ const NewProject = () => {
   }, [navigation]);
 
   return (
-    <View className="flex flex-1 bg-white p-6">
-      <View className="flex flex-1 pb-6">
-        <Text className="typo-[20-500] mb-3">Choose your template</Text>
+    <View className="flex flex-1 bg-white">
+      <ScrollView className="flex flex-1" contentContainerClassName="p-6">
+        <Text className="typo-[16-500] text-gray-80 mb-2">Project Name</Text>
+        <Input placeholder="Optional" value={projectName ?? ''} onChangeText={setProjectName} />
+        <View className="h-8" />
+        <Text className="typo-[16-500] text-gray-80 mb-2">Choose your template</Text>
         <Select onValueChange={e => setTemplate(e?.value)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a template" />
@@ -181,7 +190,8 @@ const NewProject = () => {
             <Text className="typo-[14-400] leading-snug mt-2 text-black/80">{templateDesc}</Text>
           </>
         )}
-        <Text className="typo-[20-500] mt-12 mb-3">Record or upload your file</Text>
+        <View className="h-8" />
+        <Text className="typo-[16-500] text-gray-80 mb-2">Record or upload your file</Text>
         {audioFile && <AudioPlayer className="mb-3" source={audioFile} />}
         <Tabbar data={tabbar}>
           <TabsContent value="record">
@@ -200,10 +210,10 @@ const NewProject = () => {
             </Button>
           </TabsContent>
         </Tabbar>
-      </View>
+      </ScrollView>
       <Button
         variant={'default'}
-        className="flex-row gap-2 w-full"
+        className="flex-row gap-2 m-6 mt-1"
         isLoading={uploading}
         onPress={handleSubmit}
       >

@@ -16,7 +16,7 @@ const ProjectDetail = () => {
   const [data, setData] = useState<ProjectT | null>(null);
   const [downloading, setDownloading] = useState(false);
   const { id } = useLocalSearchParams();
-  const title = data?.created_at ? format(new Date(data.created_at), 'yyyy/MM/dd HH:mm a') : '';
+  const title = data ? data.name || format(new Date(data.created_at), 'yyyy/MM/dd HH:mm a') : '';
 
   const handleDownloadCSV = async () => {
     if (!data?.modified_content) return;

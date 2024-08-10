@@ -1,6 +1,7 @@
 export type ProjectT = {
   created_at: string;
   id: number;
+  name?: string;
   status: string;
   recording?: string;
   user_prompt?: string;
