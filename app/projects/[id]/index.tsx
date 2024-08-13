@@ -10,6 +10,8 @@ import { supabase } from '@/lib/supabase';
 import { ProjectT } from '@/constants/ProjectConst';
 import Spinner from '@/components/Spinner';
 import { downloadFile } from '@/lib/downloadFile';
+import { AudioCodec } from '@/constants/AudioCodec';
+import { cn } from '@/lib/utils';
 
 const ProjectDetail = () => {
   const navigation = useNavigation();
@@ -36,19 +38,7 @@ const ProjectDetail = () => {
       setDownloading(false);
       return;
     }
-    const audioCodec: Record<string, string> = {
-      'audio/3gpp': '3gpp',
-      'audio/midi': 'mid',
-      'audio/mp3': 'mp3',
-      'audio/mp4': 'mp4',
-      'audio/mpeg': 'mp3',
-      'audio/ogg': 'ogg',
-      'audio/wav': 'wav',
-      'audio/wave': 'wav',
-      'audio/webm': 'webm',
-      'audio/x-m4a': 'm4a',
-    };
-    await downloadFile(`${title}.${audioCodec[path.data.type.toLowerCase()]}`, path.data);
+    await downloadFile(`${title}.${AudioCodec[path.data.type.toLowerCase()]}`, path.data);
     setDownloading(false);
   };
 
@@ -61,6 +51,22 @@ const ProjectDetail = () => {
       .then(res => {
         setData(res.data as ProjectT);
       });
+    const listener = supabase
+      .channel('single_project_change')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'submissions' },
+        payload => {
+          console.log(payload);
+          if (String(payload.new.id) === id) {
+            setData(payload.new as ProjectT);
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(listener);
+    };
   }, []);
 
   useEffect(() => {
@@ -73,23 +79,29 @@ const ProjectDetail = () => {
         <Spinner isPrimaryColor size="large" className="mt-10" />
       </View>
     );
-  if (data.status !== 'Ready') {
-    return (
-      <View className="flex flex-1 items-center bg-white p-6">
-        <Text className="typo-[22-500] text-red">Your project is not ready yet!</Text>
-        <Text className="typo-[14-400] leading-snug text-black my-2">
-          It will be ready coming soon! if it takes so long you can contact us.
-        </Text>
-      </View>
-    );
-  }
   return (
     <View className="flex flex-1 bg-white">
       <ScrollView contentContainerClassName="p-6 bg-white" className="flex flex-1">
-        <Text className="typo-[22-500] text-black">Your log is ready</Text>
+        <Text
+          className={cn('typo-[22-500] text-black', {
+            '!text-red': data.status !== 'Ready',
+          })}
+        >
+          {{
+            Ready: 'Your log is ready!',
+            Processing: 'Your log is processing!',
+            Error: 'There was an issue processing your log!',
+          }[data.status] ?? ''}
+        </Text>
         <Text className="typo-[14-400] leading-snug text-black my-2">
-          Your AI-crafted results are ready! Download the CSV files of your voice data, transformed
-          into tables by our advanced AI. Enjoy!
+          {{
+            Ready:
+              'Your AI-crafted results are ready! Download the CSV files of your voice data, transformed into tables by our advanced AI. Enjoy!',
+            Processing:
+              'Please wait a moment while we process your request! if it takes so long you can contact us.',
+            Error:
+              'Something went wrong while processing your voice data. Please try again, or contact support if the problem persists.',
+          }[data.status] ?? ''}
         </Text>
         <Button className="bg-primary flex-row h-11 mt-2" onPress={handleDownloadCSV}>
           <FileDown size={20} className="text-white" />
@@ -101,17 +113,21 @@ const ProjectDetail = () => {
         </Button>
         <View className="w-full h-0.5 bg-gray-20 my-8" />
         {/* Second section */}
-        <Text className="typo-[20-500] text-black mb-4">Project details</Text>
-        <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
-          <Text className="typo-[14-500]">Template</Text>: {data.template?.name ?? 'Generic'}
-        </Text>
-        <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
-          <Text className="typo-[14-500]">Transcribed Text</Text>: {data.transcribed_content}
-        </Text>
-        <View className="w-full h-0.5 bg-gray-20 my-6" />
+        {data.status === 'Ready' && (
+          <>
+            <Text className="typo-[20-500] text-black mb-4">Project details</Text>
+            <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
+              <Text className="typo-[14-500]">Template</Text>: {data.template?.name ?? 'Generic'}
+            </Text>
+            <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
+              <Text className="typo-[14-500]">Transcribed Text</Text>: {data.transcribed_content}
+            </Text>
+            <View className="w-full h-0.5 bg-gray-20 my-6" />
+          </>
+        )}
       </ScrollView>
       <Link asChild href={`/projects/${id}/edit`}>
-        <Button variant="outline" className="m-6 mt-1">
+        <Button disabled={data.status !== 'Ready'} variant="outline" className="m-6 mt-1">
           <Text className="typo-[14-500] text-gray-80">Edit & Regenrate</Text>
         </Button>
       </Link>

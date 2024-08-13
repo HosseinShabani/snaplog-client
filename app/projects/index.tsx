@@ -53,7 +53,7 @@ const Projects = () => {
         setData(res.data as ProjectT[]);
         setIsLoading(false);
       });
-    supabase
+    const listener = supabase
       .channel('room1')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'submissions' }, payload => {
         if (payload.eventType === 'UPDATE') {
@@ -65,7 +65,7 @@ const Projects = () => {
       .subscribe();
     return () => {
       setIsLoading(false);
-      supabase.removeAllChannels();
+      supabase.removeChannel(listener);
     };
   }, []);
 

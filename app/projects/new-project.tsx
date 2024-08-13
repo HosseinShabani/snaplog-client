@@ -22,6 +22,7 @@ import { TabsContent } from '@/components/ui/tabs';
 import Recorder from '@/components/Recorder';
 import { AudioFile } from '@/lib/types';
 import { Input } from '@/components/ui/input';
+import { AudioCodec } from '@/constants/AudioCodec';
 
 const NewProject = () => {
   const navigation = useNavigation();
@@ -48,7 +49,7 @@ const NewProject = () => {
 
   const handleUploadAudio = async () => {
     const file = await DocumentPicker.getDocumentAsync({
-      type: 'audio/*,audio/x-m4a,audio/m4a',
+      type: Object.keys(AudioCodec).join(','),
     });
     if (!file?.assets?.[0]) return;
     const { uri, name } = file.assets[0];

@@ -43,8 +43,10 @@ const ProjectDetail = () => {
         .from('submissions')
         .update([
           {
+            status: 'Processing',
             transcribed_content: content,
             template: template === 'generic' ? null : template,
+            modified: false,
           },
         ])
         .eq('id', id)
@@ -53,7 +55,6 @@ const ProjectDetail = () => {
         toast({ title: insertSubmission.error.message, haptic: 'error', preset: 'error' });
         return;
       }
-
       router.replace(`/projects/${id}`);
     } catch (e) {
       console.error(e);
