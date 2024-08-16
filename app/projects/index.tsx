@@ -75,13 +75,14 @@ const Projects = () => {
         <Spinner isPrimaryColor size="large" className="mt-10" />
       ) : (
         <FlatList
+          className="flex flex-1"
           keyExtractor={i => String(i.id)}
           renderItem={({ item }) => <ProjectCard {...item} />}
-          data={data}
+          data={data.filter(i => !i.removed)}
           contentContainerClassName={!data.length ? 'flex-1 justify-center items-center' : ''}
           ItemSeparatorComponent={() => <View className="w-full h-[1px] bg-gray-20" />}
           ListEmptyComponent={() => (
-            <View className="flex flex-col justify-center items-center">
+            <View className="flex flex-1 flex-col justify-center py-20 items-center">
               <Text className="typo-[24-500] text-black">Begin Your Data Collection</Text>
               <Text className="typo-[16-400] text-black mt-2 text-center">
                 Your project list is empty. Ready to revolutionize data collection? Let’s create

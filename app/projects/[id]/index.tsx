@@ -1,9 +1,10 @@
 import { ScrollView, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigation } from 'expo-router';
+import { Link, useNavigation, useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
-import { FileDown, PlayIcon } from 'lucide-react-native';
+import { FileDown, PlayIcon, EllipsisVertical } from 'lucide-react-native';
 import { format } from 'date-fns';
+import { toast } from 'burnt';
 
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/lib/supabase';
@@ -12,6 +13,100 @@ import Spinner from '@/components/Spinner';
 import { downloadFile } from '@/lib/downloadFile';
 import { AudioCodec } from '@/constants/AudioCodec';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+
+const HeaderRight = ({ id }: { id: string }) => {
+  const router = useRouter();
+  const [removing, setRemoving] = useState(false);
+
+  const handleRemoveProject = async () => {
+    try {
+      setRemoving(true);
+      const req = await supabase
+        .from('submissions')
+        .update([
+          {
+            removed: true,
+          },
+        ])
+        .eq('id', id)
+        .single();
+      setRemoving(false);
+      if (req.error) {
+        toast({ title: req.error.message, haptic: 'error', preset: 'error' });
+        return;
+      }
+      router.replace(`/projects`);
+    } catch (e) {
+      setRemoving(false);
+      console.error(e);
+      toast({
+        title: 'Please try again',
+        haptic: 'error',
+        preset: 'error',
+      });
+    }
+  };
+
+  return (
+    <Dialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <View className="-mr-2.5 w-8 h-8 rounded-full bg-gray-10 justify-center items-center">
+            <EllipsisVertical className="text-gray-800" size={20} />
+          </View>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent insets={{ left: 20 }} className="w-40 mt-1 mr-2 bg-white ">
+          <Link asChild href={`/projects/${id}/edit`}>
+            <DropdownMenuItem>
+              <Text>Edit & Regenrate</Text>
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuSeparator />
+          <DialogTrigger asChild>
+            <DropdownMenuItem>
+              <Text>Remove the project</Text>
+            </DropdownMenuItem>
+          </DialogTrigger>
+        </DropdownMenuContent>
+        <DialogContent className="bg-white sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="typo-[18-500] leading-snug">Remove the project</DialogTitle>
+            <DialogDescription className="typo-[14-400] leading-snug">
+              Are you sure you want to remove the project?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row">
+            <DialogClose asChild>
+              <Button variant="destructive" size="sm">
+                <Text className="typo-[14-400] text-gray-80">No</Text>
+              </Button>
+            </DialogClose>
+            <Button variant="default" size="sm" isLoading={removing} onPress={handleRemoveProject}>
+              <Text className="typo-[14-400] text-white">Yes</Text>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DropdownMenu>
+    </Dialog>
+  );
+};
 
 const ProjectDetail = () => {
   const navigation = useNavigation();
@@ -70,7 +165,10 @@ const ProjectDetail = () => {
   }, []);
 
   useEffect(() => {
-    navigation.setOptions({ title });
+    navigation.setOptions({
+      title,
+      headerRight: () => <HeaderRight id={id as string} />,
+    });
   }, [data]);
 
   if (!data)
@@ -103,10 +201,12 @@ const ProjectDetail = () => {
               'Something went wrong while processing your voice data. Please try again, or contact support if the problem persists.',
           }[data.status] ?? ''}
         </Text>
-        <Button className="bg-primary flex-row h-11 mt-2" onPress={handleDownloadCSV}>
-          <FileDown size={20} className="text-white" />
-          <Text className="text-white typo-[16-500] flex-1 ml-2">Download CSV file</Text>
-        </Button>
+        {data.status === 'Ready' && (
+          <Button className="bg-primary flex-row h-11 mt-2" onPress={handleDownloadCSV}>
+            <FileDown size={20} className="text-white" />
+            <Text className="text-white typo-[16-500] flex-1 ml-2">Download CSV file</Text>
+          </Button>
+        )}
         <Button className="bg-primary flex-row h-11 mt-3" onPress={handleDownloadRecording}>
           {downloading ? <Spinner size="small" /> : <PlayIcon size={20} className="text-white" />}
           <Text className="text-white typo-[16-500] flex-1 ml-2">Download Recording file</Text>
@@ -122,15 +222,9 @@ const ProjectDetail = () => {
             <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
               <Text className="typo-[14-500]">Transcribed Text</Text>: {data.transcribed_content}
             </Text>
-            <View className="w-full h-0.5 bg-gray-20 my-6" />
           </>
         )}
       </ScrollView>
-      <Link asChild href={`/projects/${id}/edit`}>
-        <Button disabled={data.status !== 'Ready'} variant="outline" className="m-6 mt-1">
-          <Text className="typo-[14-500] text-gray-80">Edit & Regenrate</Text>
-        </Button>
-      </Link>
     </View>
   );
 };

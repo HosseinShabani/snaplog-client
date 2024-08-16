@@ -8,9 +8,11 @@ export type ProjectT = {
   transcribed_content?: string;
   modified_content?: string;
   template?: { name: string };
+  removed: boolean;
 };
 
-export type TemplateT = {
-  label: string;
-  value: string;
-};
+export interface TemplateT {
+  id: number;
+  name: string;
+  prompt: string;
+}

@@ -9,7 +9,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSettings } from '@/hooks';
-import { supabase } from '@/lib/supabase';
 
 type SelectTemplateProps = {
   onChange: (template: string | undefined) => void;
@@ -17,20 +16,9 @@ type SelectTemplateProps = {
 
 const SelectTemplate: React.FC<SelectTemplateProps> = ({ onChange = () => false }) => {
   const settings = useSettings(state => state.settings);
-  const [templates, setTemplates] = useState<{ id: number; name: string; prompt: string }[]>([]);
+  const templates = useSettings(state => state.templates);
   const [template, setTemplate] = useState<string | undefined>();
   const [templateDesc, setTemplateDesc] = useState<string | undefined>();
-
-  const fetchTemplates = async () => {
-    const req = await supabase.from('templates').select('*');
-    if (req.data?.length) {
-      setTemplates(req.data);
-    }
-  };
-
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
 
   useEffect(() => {
     if (template === 'generic') {

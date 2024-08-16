@@ -10,13 +10,17 @@ import Spinner from '@/components/Spinner';
 import SelectTemplate from '@/components/SelectTemplate';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'burnt';
+import { useSettings } from '@/hooks';
 
 const ProjectDetail = () => {
   const router = useRouter();
   const navigation = useNavigation();
+  const templates = useSettings(state => state.templates);
+  const settings = useSettings(state => state.settings);
   const [data, setData] = useState<ProjectT | null>(null);
   const [template, setTemplate] = useState<string | undefined>();
   const [content, setContent] = useState<string>('');
+  const [loading, setLoading] = useState(false);
   const { id } = useLocalSearchParams();
 
   useEffect(() => {
@@ -39,24 +43,39 @@ const ProjectDetail = () => {
     if (!template)
       return toast({ title: 'Please select template', haptic: 'error', preset: 'error' });
     try {
-      const insertSubmission = await supabase
-        .from('submissions')
-        .update([
-          {
-            status: 'Processing',
-            transcribed_content: content,
-            template: template === 'generic' ? null : template,
-            modified: false,
-          },
-        ])
-        .eq('id', id)
-        .single();
-      if (insertSubmission.error) {
-        toast({ title: insertSubmission.error.message, haptic: 'error', preset: 'error' });
+      setLoading(true);
+      const template_prompt =
+        template === 'generic'
+          ? settings.default_template
+          : (templates.find(i => i.id.toString() === template)?.prompt ?? '');
+      const res = await supabase.functions.invoke('modified-submission', {
+        body: {
+          transcribed_content: content,
+          id,
+          system_prompt: settings.system_prompt,
+          template_prompt,
+        },
+      });
+      setLoading(false);
+      if (res.error) {
+        toast({
+          title: 'Please try again, or contact support if the problem persists.',
+          haptic: 'error',
+          preset: 'error',
+        });
+        return;
+      }
+      if (res.data?.error) {
+        toast({
+          title: res.data.error,
+          haptic: 'error',
+          preset: 'error',
+        });
         return;
       }
       router.replace(`/projects/${id}`);
     } catch (e) {
+      setLoading(false);
       console.error(e);
       toast({
         title: 'Please try again',
@@ -86,7 +105,7 @@ const ProjectDetail = () => {
           aria-labelledby="transcribed"
         />
       </ScrollView>
-      <Button variant="default" className="m-6 mt-1" onPress={handleSubmit}>
+      <Button isLoading={loading} variant="default" className="m-6 mt-1" onPress={handleSubmit}>
         <Text className="typo-[14-500] text-white">Submit</Text>
       </Button>
     </View>

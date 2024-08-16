@@ -29,7 +29,7 @@ const NewProject = () => {
   const router = useRouter();
   const session = useAuth(state => state.session);
   const settings = useSettings(state => state.settings);
-  const [templates, setTemplates] = useState<{ id: number; name: string; prompt: string }[]>([]);
+  const templates = useSettings(state => state.templates);
   const [template, setTemplate] = useState<string | undefined>();
   const [projectName, setProjectName] = useState<string | undefined>();
   const [uploading, setUploading] = useState(false);
@@ -52,7 +52,15 @@ const NewProject = () => {
       type: Object.keys(AudioCodec).join(','),
     });
     if (!file?.assets?.[0]) return;
-    const { uri, name } = file.assets[0];
+    const { uri, name, mimeType } = file.assets[0];
+    if (mimeType && !mimeType?.startsWith('audio/')) {
+      toast({
+        title: `Please select a valid audio file. You selected file with ${mimeType} type.`,
+        haptic: 'warning',
+        preset: 'error',
+      });
+      return;
+    }
     const fileName = name.split('.').length >= 2 ? name.split('.').slice(0, -1).join('.') : name;
     const { sound, blob } = await createBlobSoundFile(uri);
     setAudioFile({
@@ -138,17 +146,6 @@ const NewProject = () => {
       });
     }
   };
-
-  const fetchTemplates = async () => {
-    const req = await supabase.from('templates').select('*');
-    if (req.data?.length) {
-      setTemplates(req.data);
-    }
-  };
-
-  useEffect(() => {
-    fetchTemplates();
-  }, []);
 
   useEffect(() => {
     if (template === 'generic') {
