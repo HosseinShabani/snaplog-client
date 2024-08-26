@@ -1,3 +1,4 @@
+// FIX: It should change for native
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
@@ -14,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'burnt';
 
 type RecorderProps = {
-  onRecordFinish: (name: string, uri: string) => void;
+  onRecordFinish: (name: string, blob: Blob) => void;
 };
 
 const RECORDING_PRESET = {
@@ -39,7 +40,6 @@ const RECORDING_PRESET = {
     linearPCMIsFloat: false,
   },
   web: {
-    mimeType: 'audio/webm',
     bitsPerSecond: 128000,
   },
 };
@@ -75,7 +75,7 @@ const Recorder: React.FC<RecorderProps> = ({ onRecordFinish }) => {
       toast({ title: 'Error on creating audio', haptic: 'error', preset: 'error' });
       return;
     }
-    onRecordFinish(`recording-${Date.now()}`, uri);
+    // onRecordFinish(`recording-${Date.now()}`, uri);
     setRecording(undefined);
     setStatus(undefined);
   }

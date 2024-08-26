@@ -1,5 +1,6 @@
-import { Session } from '@supabase/supabase-js';
 import { create } from 'zustand';
+
+import { TemplateT } from '@/constants/ProjectConst';
 
 interface SettingsValue {
   system_prompt: string | null;
@@ -10,6 +11,8 @@ interface SettingsValue {
 interface SettingsState {
   settings: SettingsValue;
   updateSettings: (settings: SettingsValue | null) => void;
+  updateTemplates: (templates: TemplateT[]) => void;
+  templates: TemplateT[];
 }
 
 export const useSettings = create<SettingsState>(set => ({
@@ -18,6 +21,8 @@ export const useSettings = create<SettingsState>(set => ({
     default_template: null,
     default_template_desc: null,
   },
+  templates: [],
+  updateTemplates: templates => set({ templates }),
   updateSettings: settings =>
     set(state => ({ settings: { ...state.settings, ...(settings ?? {}) } })),
 }));

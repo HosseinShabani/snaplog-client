@@ -10,6 +10,7 @@ import { Toaster } from 'burnt/web';
 import '@/lib/global.css';
 import { supabase } from '@/lib/supabase';
 import { useAuth, useSettings } from '@/hooks';
+import { TemplateT } from '@/constants/ProjectConst';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,6 +34,7 @@ export default function RootLayout() {
   const setSession = useAuth(state => state.setSession);
   const session = useAuth(state => state.session);
   const updateSettings = useSettings(state => state.updateSettings);
+  const updateTemplates = useSettings(state => state.updateTemplates);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -50,8 +52,14 @@ export default function RootLayout() {
         .select('*')
         .single()
         .then(res => {
-          const { default_template, default_template_desc, system_prompt } = res?.data ?? {};
+          const { default_template, default_template_desc, system_prompt } = res.data || {};
           updateSettings({ default_template, default_template_desc, system_prompt });
+        });
+      supabase
+        .from('templates')
+        .select('*')
+        .then(res => {
+          updateTemplates((res.data || []) as TemplateT[]);
         });
     }
   }, [session?.user.id]);

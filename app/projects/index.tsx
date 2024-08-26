@@ -10,7 +10,7 @@ import { PlusIcon } from '@/lib/icons';
 import { supabase } from '@/lib/supabase';
 import Spinner from '@/components/Spinner';
 
-const ProjectCard: FC<ProjectT> = ({ created_at, id, status }) => {
+const ProjectCard: FC<ProjectT> = ({ created_at, id, status, name }) => {
   const renderStatus = (): JSX.Element => {
     if (status === 'Error') return <Text className="typo-[13-500] text-red">Error</Text>;
     if (status === 'Ready') return <Text className="typo-[13-500] text-green-500">Ready</Text>;
@@ -21,7 +21,7 @@ const ProjectCard: FC<ProjectT> = ({ created_at, id, status }) => {
       <Pressable className="flex flex-col py-4">
         <View className=" flex-row justify-between items-center">
           <Text className="typo-[16-500] text-gray-80">
-            {format(new Date(created_at), 'yyyy/MM/dd HH:mm a')}
+            {name || format(new Date(created_at), 'yyyy/MM/dd HH:mm a')}
           </Text>
         </View>
         <View className=" flex-row justify-between items-center mt-1">
@@ -53,7 +53,7 @@ const Projects = () => {
         setData(res.data as ProjectT[]);
         setIsLoading(false);
       });
-    supabase
+    const listener = supabase
       .channel('room1')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'submissions' }, payload => {
         if (payload.eventType === 'UPDATE') {
@@ -65,7 +65,7 @@ const Projects = () => {
       .subscribe();
     return () => {
       setIsLoading(false);
-      supabase.removeAllChannels();
+      supabase.removeChannel(listener);
     };
   }, []);
 
@@ -75,13 +75,14 @@ const Projects = () => {
         <Spinner isPrimaryColor size="large" className="mt-10" />
       ) : (
         <FlatList
+          className="flex flex-1"
           keyExtractor={i => String(i.id)}
           renderItem={({ item }) => <ProjectCard {...item} />}
-          data={data}
+          data={data.filter(i => !i.removed)}
           contentContainerClassName={!data.length ? 'flex-1 justify-center items-center' : ''}
           ItemSeparatorComponent={() => <View className="w-full h-[1px] bg-gray-20" />}
           ListEmptyComponent={() => (
-            <View className="flex flex-col justify-center items-center">
+            <View className="flex flex-1 flex-col justify-center py-20 items-center">
               <Text className="typo-[24-500] text-black">Begin Your Data Collection</Text>
               <Text className="typo-[16-400] text-black mt-2 text-center">
                 Your project list is empty. Ready to revolutionize data collection? Let’s create
