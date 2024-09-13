@@ -7,6 +7,22 @@ export type ProjectT = {
   user_prompt?: string;
   transcribed_content?: string;
   modified_content?: string;
+  deepgramJson?: {
+    results?: {
+      channels: {
+        alternatives: {
+          confidence: number;
+          transcript: string;
+          words: {
+            confidence: number;
+            end: number;
+            start: number;
+            word: string;
+          }[];
+        }[];
+      }[];
+    };
+  };
   template?: { name: string };
   removed: boolean;
 };
