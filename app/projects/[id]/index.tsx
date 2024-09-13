@@ -31,6 +31,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import CsvReader from '@/components/CsvReader';
+import { AudioFile } from '@/lib/types';
+import AudioPlayer from '@/components/AudioPlayer';
+import { Audio } from 'expo-av';
 
 const HeaderRight = ({ id }: { id: string }) => {
   const router = useRouter();
@@ -113,6 +116,7 @@ const ProjectDetail = () => {
   const navigation = useNavigation();
   const [data, setData] = useState<ProjectT | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [audioFile, setAudioFile] = useState<AudioFile | null | undefined>();
   const { id } = useLocalSearchParams();
   const title = data ? data.name || format(new Date(data.created_at), 'yyyy/MM/dd HH:mm a') : '';
 
@@ -127,15 +131,24 @@ const ProjectDetail = () => {
   };
 
   const handleDownloadRecording = async () => {
-    if (!data?.recording) return;
+    if (!audioFile) return;
     setDownloading(true);
-    const path = await supabase.storage.from('record').download(data.recording);
-    if (!path.data) {
-      setDownloading(false);
-      return;
-    }
-    await downloadFile(`${title}.${AudioCodec[path.data.type.toLowerCase()]}`, path.data);
+    await downloadFile(`${title}.${AudioCodec[audioFile.blob.type.toLowerCase()]}`, audioFile.blob);
     setDownloading(false);
+  };
+
+  const setupAudioPlayer = async () => {
+    if (!data?.recording) return;
+    const path = await supabase.storage.from('record').download(data.recording);
+    if (!path.data) return;
+    const uri = URL.createObjectURL(path.data);
+    const { sound } = await Audio.Sound.createAsync({ uri });
+    setAudioFile({
+      blob: path.data,
+      name: title,
+      uri,
+      sound,
+    });
   };
 
   useEffect(() => {
@@ -166,6 +179,7 @@ const ProjectDetail = () => {
   }, []);
 
   useEffect(() => {
+    setupAudioPlayer();
     navigation.setOptions({
       title,
       headerRight: () => <HeaderRight id={id as string} />,
@@ -212,6 +226,7 @@ const ProjectDetail = () => {
           {downloading ? <Spinner size="small" /> : <PlayIcon size={20} className="text-white" />}
           <Text className="text-white typo-[16-500] flex-1 ml-2">Download Recording file</Text>
         </Button>
+        {audioFile && <AudioPlayer className="mt-3" source={audioFile} />}
         <View className="w-full h-0.5 bg-gray-20 my-8" />
         {/* Second section */}
         {data.status === 'Ready' && (
