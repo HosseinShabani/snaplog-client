@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import CsvReader from '@/components/CsvReader';
 
 const HeaderRight = ({ id }: { id: string }) => {
   const router = useRouter();
@@ -216,12 +217,14 @@ const ProjectDetail = () => {
         {data.status === 'Ready' && (
           <>
             <Text className="typo-[20-500] text-black mb-4">Project details</Text>
-            <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
-              <Text className="typo-[14-500]">Template</Text>: {data.template?.name ?? 'Generic'}
+            <Text className="typo-[14-400] leading-snug text-gray-80 mb-3">
+              <Text className="typo-[14-500]">Template:</Text> {data.template?.name ?? 'Generic'}
             </Text>
-            <Text className="typo-[14-400] leading-snug text-gray-80 mb-2">
-              <Text className="typo-[14-500]">Transcribed Text</Text>: {data.transcribed_content}
+            <Text className="typo-[14-400] leading-snug text-gray-80 mb-3">
+              <Text className="typo-[14-500]">Transcribed Text:</Text> {data.transcribed_content}
             </Text>
+            <Text className="leading-snug text-gray-80 typo-[14-500] mb-1">CSV Preview:</Text>
+            <CsvReader csvString={data.modified_content} />
           </>
         )}
       </ScrollView>
